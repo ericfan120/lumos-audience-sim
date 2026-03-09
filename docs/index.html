@@ -2120,9 +2120,10 @@ function renderChannelMix(brief) {
   const panel = document.getElementById('tab-channel')
   if (!panel) return
   panel.innerHTML = `
-    <div style="padding:24px;overflow-y:auto;height:100%;box-sizing:border-box;">
+    <div style="padding:24px;box-sizing:border-box;">
       <h2 style="font-family:AT-Realm-Bold;color:#7c3aed;font-size:22px;margin-bottom:4px">Omni-Channel Intelligence</h2>
       <p style="font-family:GT-Planar;color:var(--accent);font-size:13px;margin-bottom:24px">MMM-powered analysis across all channels. Budget: AUD ${budget.toLocaleString()}</p>
+      <!-- Row 1: 2x2 core charts -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px">
         <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px">
           <h3 style="font-family:AT-Realm-Bold;font-size:14px;color:var(--bright);margin-bottom:16px;margin-top:0">ROAS by Channel</h3>
@@ -2141,6 +2142,26 @@ function renderChannelMix(brief) {
           <div id="optimizer-chart"></div>
         </div>
       </div>
+      <!-- Row 2: Frequency + Optimal Mix -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px">
+        <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px">
+          <h3 style="font-family:AT-Realm-Bold;font-size:14px;color:var(--bright);margin-bottom:4px;margin-top:0">Frequency Simulation</h3>
+          <p style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.45);margin:0 0 14px">Weekly exposure frequency vs fatigue threshold</p>
+          <div id="freq-chart"></div>
+        </div>
+        <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px">
+          <h3 style="font-family:AT-Realm-Bold;font-size:14px;color:var(--bright);margin-bottom:4px;margin-top:0">Optimal Mix Frontier</h3>
+          <p style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.45);margin:0 0 14px">Recommended budget split as total spend grows</p>
+          <div id="optimal-mix-chart"></div>
+        </div>
+      </div>
+      <!-- Row 3: GRP Table -->
+      <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:24px">
+        <h3 style="font-family:AT-Realm-Bold;font-size:14px;color:var(--bright);margin-bottom:4px;margin-top:0">Media Plan: GRPs &amp; Effective Reach</h3>
+        <p style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.45);margin:0 0 14px">Gross Rating Points, weekly frequency, and cost-per-effective-reach by channel</p>
+        <div id="grp-table"></div>
+      </div>
+      <!-- Synergy Matrix -->
       <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px">
         <h3 style="font-family:AT-Realm-Bold;font-size:14px;color:var(--bright);margin-bottom:16px;margin-top:0">Channel Synergy Matrix</h3>
         <div id="synergy-matrix"></div>
@@ -2152,6 +2173,9 @@ function renderChannelMix(brief) {
   renderDecayChart()
   renderReachChart(budget)
   renderOptimizerChart(alloc, budget, roasData)
+  renderFrequencyChart(alloc, budget)
+  renderOptimalMixChart(budget, alloc)
+  renderGRPTable(alloc, budget)
   renderSynergyMatrix()
   renderChannelInsights(roasData)
   addChannelNodes(roasData)
