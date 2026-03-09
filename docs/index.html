@@ -324,6 +324,8 @@ html, body {
   line-height: 1.5;
 }
 #graph-tooltip.visible { opacity: 1; }
+#graph-tooltip { max-width: 260px; }
+#sc-detail-panel.open { right: 0 !important; }
 #graph-tooltip strong {
   font-family: 'AT-Realm-Regular', sans-serif;
   display: block;
@@ -1100,6 +1102,24 @@ html, body {
 <!-- TOOLTIP -->
 <div id="graph-tooltip"></div>
 
+    <!-- SUPER CONNECTOR DETAIL PANEL -->
+    <div id="sc-detail-panel" style="
+      position:absolute;right:-400px;top:0;bottom:0;width:360px;
+      background:rgba(255,255,255,0.97);
+      border-left:1px solid rgba(26,10,46,0.1);
+      backdrop-filter:blur(16px);
+      z-index:20;
+      display:flex;flex-direction:column;
+      transition:right 0.3s cubic-bezier(0.16,1,0.3,1);
+      overflow:hidden;
+    ">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid rgba(26,10,46,0.08);flex-shrink:0">
+        <div style="font-family:AT-Realm-Bold;font-size:13px;color:#7c3aed">⚡ Super Connector Profile</div>
+        <button onclick="closeSCPanel()" style="background:none;border:none;cursor:pointer;font-size:18px;color:rgba(26,10,46,0.4);line-height:1;padding:0 4px">×</button>
+      </div>
+      <div id="sc-detail-body" style="flex:1;overflow-y:auto;padding:18px;scrollbar-width:thin;scrollbar-color:rgba(26,10,46,0.1) transparent"></div>
+    </div>
+
 <!-- TOAST -->
 <div id="toast"></div>
 
@@ -1384,9 +1404,31 @@ function showTooltip(event, d) {
     html = `<strong>${d.label}</strong>Campaign node<br>Click to see brief`
   } else if (d.type === 'persona') {
     const p = d.data
-    const superBadge = isSuper(p) ? '<br><span style="color:#f59e0b;font-size:11px">⚡ Super Connector</span>' : ''
-    const womBadge = d.isWOMOnly ? '<br><span style="color:#f59e0b;font-size:11px;opacity:0.7">◎ WOM-only reach</span>' : ''
-    html = `<strong>${p.name}</strong>${p.age} · ${p.occupation}<br>${p.suburb}${superBadge}${womBadge}`
+    const rx = (window._simReactions||[]).find(r=>r.persona_id===p.id)
+    if (d.isSuperConnector) {
+      const womOut = (window._simWOM||[]).filter(w=>w.from===p.id).length
+      const score = p.cascadeScore || 0
+      html = `<strong>⚡ ${p.name}</strong>
+        <span style="color:#f59e0b;font-weight:600">Super Connector</span><br>
+        ${p.age} · ${p.occupation} · ${p.suburb}<br>
+        <hr style="border:none;border-top:1px solid rgba(26,10,46,0.1);margin:5px 0">
+        <span style="font-size:10px;color:rgba(26,10,46,0.5)">WHY SUPER CONNECTOR</span><br>
+        ${p.social_influence_score>=8 ? '✦ Influence score '+p.social_influence_score+'/10<br>' : ''}
+        ${(p.social_combustion_pct||0)>=72 ? '✦ Combustion '+p.social_combustion_pct+'% — highly likely to share<br>' : ''}
+        ${womOut>0 ? '✦ Amplifies to '+womOut+' secondary reach nodes<br>' : ''}
+        <hr style="border:none;border-top:1px solid rgba(26,10,46,0.1);margin:5px 0">
+        <span style="color:#7c3aed;font-weight:600">Cascade Score: ${score}</span><br>
+        <span style="font-size:10px;color:rgba(26,10,46,0.45)">Click for full breakdown →</span>`
+    } else if (d.isWOMOnly) {
+      html = `<strong>${p.name}</strong>${p.age} · ${p.occupation}<br>${p.suburb}<br>
+        <span style="color:#f59e0b;font-size:11px">◎ WOM-only reach</span><br>
+        <span style="font-size:10px;color:rgba(26,10,46,0.45)">Reached via word-of-mouth, not direct campaign exposure</span>`
+    } else {
+      const recallStr = rx ? `Recall ${rx.recall_strength}/5 · ${rx.emotional_response||''}` : 'No direct exposure'
+      html = `<strong>${p.name}</strong>${p.age} · ${p.occupation}<br>${p.suburb}<br>
+        <span style="font-size:11px;color:rgba(26,10,46,0.55)">${recallStr}</span><br>
+        <span style="font-size:10px;color:rgba(26,10,46,0.4)">Cascade: ${p.cascadeScore||'—'} · Combustion: ${p.social_combustion_pct||50}%</span>`
+    }
   } else if (d.type === 'kpi') {
     const k = d.data
     html = `<strong>${k.label || d.label.split('\n')[0]}</strong>${k.value || ''}`
@@ -1411,14 +1453,138 @@ document.getElementById('graph-svg').addEventListener('mousemove', e => {
   if (tt.classList.contains('visible')) moveTT(e)
 })
 
+function closeSCPanel() {
+  document.getElementById('sc-detail-panel').classList.remove('open')
+}
+
 function onNodeClick(event, d) {
   if (d.type === 'persona') {
     const personas = window._simPersonas || []
-    const p = personas.find(x => x.id === d.id)
-    if (p && document.getElementById('result-tabs').style.display !== 'none') {
-      switchTab('results')
+    const p = personas.find(x => x.id === d.id) || d.data
+    if (!p) return
+
+    if (d.isSuperConnector) {
+      // Open rich super connector panel
+      showSCDetail(p, d)
+    } else {
+      // For regular personas, switch to results tab
+      if (document.getElementById('result-tabs').style.display !== 'none') {
+        switchTab('results')
+      }
     }
   }
+}
+
+function showSCDetail(p, d) {
+  const rx = (window._simReactions||[]).find(r => r.persona_id === p.id)
+  const womOut = (window._simWOM||[]).filter(w => w.from === p.id)
+  const womTargets = womOut.map(w => {
+    const tp = (window._simPersonas||[]).find(x => x.id === w.to)
+    return tp ? tp.name : w.to
+  })
+  const score = p.cascadeScore || 0
+  const ch = getChannelRecommendation ? getChannelRecommendation(p) : null
+
+  // Score breakdown
+  const recallNorm = rx ? rx.recall_strength / 5 : 0.1
+  const influenceNorm = (p.social_influence_score||5) / 10
+  const combustionNorm = (p.social_combustion_pct||50) / 100
+  const womBonus = womOut.length * 0.15
+
+  const recallContrib = Math.round(recallNorm * 0.3 * 100)
+  const influenceContrib = Math.round(influenceNorm * 0.35 * 100)
+  const combustionContrib = Math.round(combustionNorm * 0.25 * 100)
+  const womContrib = Math.round(womBonus * 100)
+
+  const whyReasons = []
+  if (p.social_influence_score >= 8) whyReasons.push(`<li>High social influence score (${p.social_influence_score}/10) — likely a community hub, opinion leader, or well-connected professional</li>`)
+  if ((p.social_combustion_pct||0) >= 72) whyReasons.push(`<li>High combustion rate (${p.social_combustion_pct}%) — statistically likely to share content within 24 hours of exposure</li>`)
+  if (womOut.length > 0) whyReasons.push(`<li>Reaches ${womOut.length} secondary personas via word-of-mouth who had no direct campaign contact</li>`)
+  if (rx?.recall_strength >= 4) whyReasons.push(`<li>Strong initial recall (${rx.recall_strength}/5) — the campaign landed with emotional impact</li>`)
+  if ((p.lifestyle_traits||[]).some(t => /social|connect|network|community|influenc/i.test(t))) whyReasons.push(`<li>Lifestyle traits indicate social connector behaviour</li>`)
+
+  const panel = document.getElementById('sc-detail-body')
+  panel.innerHTML = `
+    <!-- Header -->
+    <div style="display:flex;gap:14px;align-items:center;margin-bottom:18px">
+      ${p.photo ? `<img src="${p.photo}" style="width:56px;height:56px;border-radius:50%;object-fit:cover;border:2.5px solid #f59e0b;flex-shrink:0">` : ''}
+      <div>
+        <div style="font-family:AT-Realm-Bold;font-size:16px;color:#1a0a2e">${p.name}</div>
+        <div style="font-family:GT-Planar;font-size:12px;color:rgba(26,10,46,0.5);margin-top:2px">${p.age} · ${p.occupation}</div>
+        <div style="font-family:GT-Planar;font-size:12px;color:rgba(26,10,46,0.4)">${p.suburb}</div>
+      </div>
+    </div>
+
+    <!-- Cascade Score callout -->
+    <div style="background:linear-gradient(135deg,#7c3aed,#a855f7);border-radius:10px;padding:14px 16px;margin-bottom:16px;color:#fff">
+      <div style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.1em;opacity:0.8;margin-bottom:4px">Cascade Power Score</div>
+      <div style="font-family:AT-Realm-Bold;font-size:32px;line-height:1">${score}</div>
+      <div style="font-family:GT-Planar;font-size:10px;opacity:0.75;margin-top:4px">Top ${score >= 70 ? '10' : score >= 50 ? '25' : '50'}% of all simulated personas</div>
+    </div>
+
+    <!-- Why super connector -->
+    <div style="margin-bottom:16px">
+      <div style="font-family:AT-Realm-Bold;font-size:12px;color:#1a0a2e;margin-bottom:8px">Why This Person Is a Super Connector</div>
+      <ul style="font-family:GT-Planar;font-size:12px;color:rgba(26,10,46,0.7);line-height:1.7;padding-left:18px;margin:0">
+        ${whyReasons.join('') || '<li>High aggregate score across influence, combustion, and recall metrics</li>'}
+      </ul>
+    </div>
+
+    <!-- Score breakdown -->
+    <div style="background:rgba(26,10,46,0.03);border:1px solid rgba(26,10,46,0.08);border-radius:10px;padding:14px;margin-bottom:16px">
+      <div style="font-family:AT-Realm-Bold;font-size:11px;color:#1a0a2e;margin-bottom:10px">📊 Score Breakdown</div>
+      ${[
+        { label:'Social Influence', val: influenceContrib, total: 35, color:'#7c3aed', tip:`${p.social_influence_score||5}/10 score × 35% weight` },
+        { label:'Brand Recall', val: recallContrib, total: 30, color:'#16a34a', tip:`${rx?.recall_strength||1}/5 strength × 30% weight` },
+        { label:'Combustion Rate', val: combustionContrib, total: 25, color:'#f59e0b', tip:`${p.social_combustion_pct||50}% share probability × 25% weight` },
+        { label:'WOM Amplification', val: womContrib, total: 10, color:'#ec4899', tip:`${womOut.length} secondary reach × 15% bonus` },
+      ].map(row => `
+        <div style="margin-bottom:9px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px">
+            <span style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.65)">${row.label}</span>
+            <span style="font-family:AT-Realm-Bold;font-size:11px;color:${row.color}">${row.val} pts</span>
+          </div>
+          <div style="height:5px;background:rgba(26,10,46,0.06);border-radius:3px;overflow:hidden">
+            <div style="height:100%;width:${Math.min(100,(row.val/row.total)*100)}%;background:${row.color};border-radius:3px;transition:width 0.6s"></div>
+          </div>
+          <div style="font-family:GT-Planar;font-size:9px;color:rgba(26,10,46,0.35);margin-top:2px">${row.tip}</div>
+        </div>
+      `).join('')}
+    </div>
+
+    <!-- The Science -->
+    <div style="background:#faf5ff;border:1px solid rgba(124,58,237,0.15);border-radius:10px;padding:14px;margin-bottom:16px">
+      <div style="font-family:AT-Realm-Bold;font-size:11px;color:#7c3aed;margin-bottom:8px">🔬 The Science Behind This</div>
+      <p style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.65);line-height:1.7;margin:0 0 8px">This simulation models real-world social diffusion theory — specifically the <strong>Bass Diffusion Model</strong> and <strong>Network Cascade Theory</strong>. Super connectors are agents whose combination of recall, influence, and combustion rate makes them disproportionately likely to amplify a campaign signal through their social graph.</p>
+      <p style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.65);line-height:1.7;margin:0 0 8px">In network science, these are called <strong>hub nodes</strong> — individuals who sit at the intersection of multiple social clusters. Reaching just one super connector can trigger a cascade equivalent to reaching 8–12 regular consumers.</p>
+      <p style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.65);line-height:1.7;margin:0"><strong>Formula:</strong> CascadeScore = (Recall × 0.30) + (Influence × 0.35) + (Combustion × 0.25) + (WOM Reach × 0.10), scaled 0–100.</p>
+    </div>
+
+    <!-- WOM reach list -->
+    ${womTargets.length > 0 ? `
+    <div style="margin-bottom:16px">
+      <div style="font-family:AT-Realm-Bold;font-size:11px;color:#1a0a2e;margin-bottom:8px">🔗 Their WOM Reach (${womTargets.length} people)</div>
+      <div style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.6);line-height:1.8">${womTargets.map(n=>`<span style="display:inline-block;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:20px;padding:2px 8px;margin:2px">${n}</span>`).join('')}</div>
+    </div>` : ''}
+
+    <!-- Reaction quote -->
+    ${rx?.quote ? `
+    <div style="border-left:3px solid #7c3aed;padding:10px 14px;margin-bottom:16px;background:rgba(124,58,237,0.04);border-radius:0 8px 8px 0">
+      <div style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(26,10,46,0.4);margin-bottom:6px">Their reaction to the campaign</div>
+      <div style="font-family:GT-Planar;font-size:12px;color:#1a0a2e;line-height:1.7;font-style:italic">"${rx.quote}"</div>
+      <div style="font-family:GT-Planar;font-size:10px;color:rgba(26,10,46,0.4);margin-top:4px">${rx.emotional_response||''} · Recall ${rx.recall_strength}/5</div>
+    </div>` : ''}
+
+    <!-- Channel rec -->
+    ${ch ? `
+    <div style="background:rgba(22,163,74,0.05);border:1px solid rgba(22,163,74,0.2);border-radius:10px;padding:14px">
+      <div style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(26,10,46,0.4);margin-bottom:6px">Best Channel to Activate</div>
+      <div style="font-family:AT-Realm-Bold;font-size:13px;color:#1a0a2e;margin-bottom:4px">${ch.channels}</div>
+      <div style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.55);margin-bottom:6px">${ch.reason}</div>
+      <div style="font-family:AT-Realm-Bold;font-size:12px;color:#16a34a">Predicted ROAS: ${ch.roas}×</div>
+    </div>` : ''}
+  `
+  document.getElementById('sc-detail-panel').classList.add('open')
 }
 
 // ===== API KEY =====
