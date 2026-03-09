@@ -1910,13 +1910,64 @@ function renderAudienceTargets(ranking, reactions) {
           <div style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.5);margin-bottom:4px">${ch.reason}</div>
           <div style="font-family:AT-Realm-Bold;font-size:12px;color:#16a34a">Predicted ROAS: ${ch.roas}×</div>
         </div>
-        <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
-          <span style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(26,10,46,0.4)">Est. Addressable Universe</span>
-          <span style="font-family:AT-Realm-Bold;font-size:12px;color:#1a0a2e">${estimateUniverse(p)}</span>
+        <div style="margin-top:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(26,10,46,0.4)">Est. Addressable Universe</span>
+            <span style="font-family:AT-Realm-Bold;font-size:12px;color:#1a0a2e">${estimateUniverse(p)}</span>
+          </div>
+          <button onclick="startInterview('${p.id}')" style="display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border:none;border-radius:20px;padding:6px 14px;font-family:AT-Realm-Bold;font-size:11px;cursor:pointer;transition:opacity 0.2s;flex-shrink:0" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+            <span>💬</span> Interview ${p.name.split(' ')[0]}
+          </button>
         </div>
       </div>
     </div>`
   }).join('')
+}
+
+function startInterview(personaId) {
+  // Switch to chat tab
+  switchTab('chat')
+  // Select this persona in the dropdown
+  const sel = document.getElementById('chat-persona')
+  if (sel) {
+    sel.value = personaId
+    // Trigger change if needed
+    sel.dispatchEvent(new Event('change'))
+  }
+  // Clear previous chat history
+  const history = document.getElementById('chat-history')
+  if (history) history.innerHTML = ''
+  // Find persona details for the intro prompt
+  const personas = window._simPersonas || []
+  const reactions = window._simReactions || []
+  const p = personas.find(x => x.id === personaId)
+  const r = reactions.find(x => x.persona_id === personaId) || {}
+  if (!p) return
+  const firstName = p.name.split(' ')[0]
+  // Show a starter prompt in the input so the interviewer knows what to ask
+  const input = document.getElementById('chat-input')
+  if (input) {
+    input.placeholder = `Ask ${firstName} anything — their daily life, how they feel about the ad, what influences their decisions...`
+    input.focus()
+  }
+  // Auto-send a contextual opener from the persona so the interview starts naturally
+  const recallAdj = (r.recall_strength||3) >= 4 ? 'clearly' : (r.recall_strength||3) >= 3 ? 'vaguely' : 'barely'
+  const openerPrompt = `Start the interview by briefly introducing yourself as ${firstName} — your age, what you do, where you live, and one thing about your daily life. Keep it casual and real, 2-3 sentences max. Don't mention the campaign yet.`
+  // Inject as a hidden system kick-off
+  const brief = getFormValues()
+  const firstName2 = p.name.split(' ')[0]
+  const sysKick = `You are roleplaying as ${p.name}, a ${p.age}-year-old ${p.occupation} from ${p.suburb}, being interviewed by a market researcher.
+Personality: ${(p.lifestyle_traits||[]).slice(0,4).join(', ')}.
+You recently saw the "${brief.brand}" campaign. Reaction: ${r.emotional_response||'curious'}. Recall: ${r.recall_strength||3}/5.
+Speak as ${firstName2}. Casual Australian English. NEVER output JSON. Real, warm, natural human voice.`
+  callLLM([
+    { role: 'system', content: sysKick },
+    { role: 'user', content: openerPrompt }
+  ], false).then(resp => {
+    appendChatBubble(p.name, resp, 'assistant')
+  }).catch(() => {
+    appendChatBubble(p.name, `Hey! Yeah, so I'm ${firstName2}, ${p.age}, I work as a ${p.occupation} — based out of ${p.suburb}. Happy to chat.`, 'assistant')
+  })
 }
 
 function updateProcessSteps(step) {
