@@ -1639,6 +1639,7 @@ async function callLLM(messages, expectJson = true) {
 function getFormValues() {
   return {
     brand: document.getElementById('f-brand').value.trim(),
+    objective: (document.getElementById('f-objective') || {}).value || 'Awareness',
     message: document.getElementById('f-message').value.trim(),
     audience: document.getElementById('f-audience').value.trim(),
     location: document.getElementById('f-location').value.trim(),
@@ -2654,31 +2655,51 @@ Use realistic values for ${month} ${now.getFullYear()} in Australia. Cultural ev
 async function initWorldContext() {
   const location = document.getElementById('f-location')?.value || 'Sydney'
   const brand = document.getElementById('f-brand')?.value || 'Brand'
+  const loadingEl = document.getElementById('world-loading')
+  const signalsEl = document.getElementById('world-signals')
+  const footerEl  = document.getElementById('world-footer')
+  if (!loadingEl || !signalsEl) return
 
-  document.getElementById('world-loading').style.display = 'block'
-  document.getElementById('world-signals').innerHTML = ''
-  document.getElementById('world-footer').style.display = 'none'
+  loadingEl.style.display = 'block'
+  signalsEl.innerHTML = ''
+  if (footerEl) footerEl.style.display = 'none'
 
-  const [weather, holidays] = await Promise.all([
-    fetchWeather(location),
-    fetchPublicHolidays()
-  ])
+  // helper: race a promise against a timeout
+  const withTimeout = (p, ms) => Promise.race([p, new Promise((_,rej) => setTimeout(() => rej(new Error('timeout')), ms))])
 
-  let macro = null
+  // ── PHASE 1: render static fallbacks IMMEDIATELY so panel never stays blank
+  const now = new Date()
+  const season = now.getMonth()>=2&&now.getMonth()<=4?'Autumn':now.getMonth()>=5&&now.getMonth()<=7?'Winter':now.getMonth()>=8&&now.getMonth()<=10?'Spring':'Summer'
+  const seasonIcon = season==='Summer'?'🌞':season==='Autumn'?'🍂':season==='Winter'?'❄️':'🌸'
+  const baseSignals = [
+    { icon:seasonIcon, label:'Seasonality', value:`${season} — ${now.toLocaleString('en-AU',{month:'long'})}`, sub:'Peak outdoor & retail activity period', sentiment:'positive' },
+    { icon:'🏦', label:'RBA Cash Rate', value:'4.35%', sub:'On hold — stable consumer environment', sentiment:'neutral' },
+    { icon:'📈', label:'ASX 200', value:'8,245 (+0.6%)', sub:'Positive market sentiment', sentiment:'positive' },
+    { icon:'💭', label:'Consumer Confidence', value:'87 / 100', sub:'Cautious but engaged', sentiment:'neutral' },
+    { icon:'👷', label:'Unemployment', value:'3.9%', sub:'Low unemployment = higher disposable income', sentiment:'positive' },
+    { icon:'📣', label:'Ad Spend Outlook', value:'Strong', sub:'Digital + OOH spend up 12% YoY', sentiment:'positive' },
+  ]
+  loadingEl.style.display = 'none'
+  signalsEl.innerHTML = baseSignals.map(s => renderSignalCard(s)).join('')
+  if (footerEl) footerEl.style.display = 'block'
+  worldContext = { signals: baseSignals, location, brand, weather: null, holidays: null, macro: null }
+
+  // ── PHASE 2: enrich with live data (non-blocking, each with timeout) ─────
+  let weather = null, holidays = null, macro = null
+
+  try { weather = await withTimeout(fetchWeather(location), 5000) } catch(e) {}
+  try { holidays = await withTimeout(fetchPublicHolidays(), 5000) } catch(e) {}
   if (getApiKey()) {
-    try { macro = await fetchMacroSignals(location, brand) } catch(e) {}
+    try { macro = await withTimeout(fetchMacroSignals(location, brand), 12000) } catch(e) {}
   }
 
+  // ── PHASE 3: build final signal list and re-render ────────────────────────
   const signals = []
 
   if (weather) signals.push(weather)
 
-  const now = new Date()
-  const season = now.getMonth() >= 2 && now.getMonth() <= 4 ? 'Autumn' :
-                 now.getMonth() >= 5 && now.getMonth() <= 7 ? 'Winter' :
-                 now.getMonth() >= 8 && now.getMonth() <= 10 ? 'Spring' : 'Summer'
   signals.push({
-    icon: season==='Summer'?'🌞':season==='Autumn'?'🍂':season==='Winter'?'❄️':'🌸',
+    icon: seasonIcon,
     label: 'Seasonality',
     value: `${season} — ${now.toLocaleString('en-AU',{month:'long'})}`,
     sub: macro?.season_note || 'Peak outdoor & retail activity period',
@@ -2688,75 +2709,43 @@ async function initWorldContext() {
   if (holidays) signals.push(holidays)
 
   if (macro) {
-    signals.push({
-      icon: '🏦',
-      label: 'RBA Cash Rate',
-      value: macro.rba_rate,
-      sub: `Trend: ${macro.rba_trend} — ${macro.rba_trend==='cutting'?'consumer spending rising':macro.rba_trend==='hiking'?'consumer spending cautious':'stable environment'}`,
-      sentiment: macro.rba_sentiment
-    })
-    signals.push({
-      icon: '📈',
-      label: 'ASX 200',
-      value: `${macro.asx_level} (${macro.asx_change})`,
-      sub: 'Australian equity market',
-      sentiment: macro.asx_sentiment
-    })
-    signals.push({
-      icon: '💭',
-      label: 'Consumer Confidence',
-      value: `${macro.consumer_confidence} / 100`,
-      sub: `Index ${macro.consumer_confidence_trend} — ${macro.consumer_confidence >= 90 ? 'optimistic spending mood' : macro.consumer_confidence >= 75 ? 'cautious but engaged' : 'conservative spend'}`,
-      sentiment: macro.consumer_confidence_sentiment
-    })
-    signals.push({
-      icon: '👷',
-      label: 'Unemployment',
-      value: macro.unemployment,
-      sub: 'Low unemployment = higher disposable income',
-      sentiment: macro.unemployment_sentiment
-    })
+    signals.push({ icon:'🏦', label:'RBA Cash Rate', value:macro.rba_rate,
+      sub:`Trend: ${macro.rba_trend} — ${macro.rba_trend==='cutting'?'consumer spending rising':macro.rba_trend==='hiking'?'consumer spending cautious':'stable environment'}`,
+      sentiment:macro.rba_sentiment })
+    signals.push({ icon:'📈', label:'ASX 200', value:`${macro.asx_level} (${macro.asx_change})`,
+      sub:'Australian equity market', sentiment:macro.asx_sentiment })
+    signals.push({ icon:'💭', label:'Consumer Confidence', value:`${macro.consumer_confidence} / 100`,
+      sub:`Index ${macro.consumer_confidence_trend} — ${macro.consumer_confidence>=90?'optimistic spending mood':macro.consumer_confidence>=75?'cautious but engaged':'conservative spend'}`,
+      sentiment:macro.consumer_confidence_sentiment })
+    signals.push({ icon:'👷', label:'Unemployment', value:macro.unemployment,
+      sub:'Low unemployment = higher disposable income', sentiment:macro.unemployment_sentiment })
     if (macro.cultural_events?.length) {
-      macro.cultural_events.forEach(ev => {
-        signals.push({
-          icon: '🎭',
-          label: 'Cultural Event',
-          value: ev.name,
-          sub: `${ev.dates}${ev.attendance ? ' · ' + ev.attendance + ' attendance' : ''} · ${ev.relevance}`,
-          sentiment: 'alert'
-        })
-      })
+      macro.cultural_events.forEach(ev => signals.push({ icon:'🎭', label:'Cultural Event', value:ev.name,
+        sub:`${ev.dates}${ev.attendance?' · '+ev.attendance+' attendance':''} · ${ev.relevance}`, sentiment:'alert' }))
     }
     if (macro.trending_topics?.length) {
-      signals.push({
-        icon: '🔥',
-        label: 'Trending',
-        value: macro.trending_topics.slice(0,2).join(', '),
-        sub: macro.trending_topics[2] || 'AU cultural zeitgeist',
-        sentiment: 'neutral'
-      })
+      signals.push({ icon:'🔥', label:'Trending', value:macro.trending_topics.slice(0,2).join(', '),
+        sub:macro.trending_topics[2]||'AU cultural zeitgeist', sentiment:'neutral' })
     }
-    signals.push({
-      icon: '📣',
-      label: 'Ad Spend Outlook',
-      value: (macro.ad_spend_outlook?.charAt(0).toUpperCase() + macro.ad_spend_outlook?.slice(1)) || 'Strong',
-      sub: macro.ad_spend_note || 'Digital + OOH share growing',
-      sentiment: macro.ad_spend_sentiment
-    })
+    signals.push({ icon:'📣', label:'Ad Spend Outlook',
+      value:(macro.ad_spend_outlook?.charAt(0).toUpperCase()+macro.ad_spend_outlook?.slice(1))||'Strong',
+      sub:macro.ad_spend_note||'Digital + OOH share growing', sentiment:macro.ad_spend_sentiment })
   } else {
     signals.push(
       { icon:'🏦', label:'RBA Cash Rate', value:'4.35%', sub:'On hold — stable environment', sentiment:'neutral' },
       { icon:'📈', label:'ASX 200', value:'8,245 (+0.6%)', sub:'Positive market sentiment', sentiment:'positive' },
-      { icon:'💭', label:'Consumer Confidence', value:'87 / 100', sub:'Cautious but engaged', sentiment:'neutral' }
+      { icon:'💭', label:'Consumer Confidence', value:'87 / 100', sub:'Cautious but engaged', sentiment:'neutral' },
+      { icon:'👷', label:'Unemployment', value:'3.9%', sub:'Low unemployment = higher disposable income', sentiment:'positive' },
+      { icon:'📣', label:'Ad Spend Outlook', value:'Strong', sub:'Digital + OOH share growing', sentiment:'positive' }
     )
   }
 
   worldContext = { weather, holidays, macro, signals, location, brand }
-
-  document.getElementById('world-loading').style.display = 'none'
-  document.getElementById('world-signals').innerHTML = signals.map(s => renderSignalCard(s)).join('')
-  document.getElementById('world-footer').style.display = 'block'
+  signalsEl.innerHTML = signals.map(s => renderSignalCard(s)).join('')
+  const weatherNote = weather ? '' : '<div style="font-size:9px;color:rgba(26,10,46,0.3);text-align:center;margin-top:4px">Live weather unavailable · using estimates</div>'
+  if (footerEl) { footerEl.innerHTML = 'Signals factored into simulation' + weatherNote; footerEl.style.display = 'block' }
 }
+
 
 let worldContextDebounce = null
 function onLocationChange() {
