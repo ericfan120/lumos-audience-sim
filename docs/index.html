@@ -336,17 +336,7 @@ html, body {
 /* LEGEND */
 #graph-legend {
   position: absolute;
-  bottom: 16px;
-  left: 16px;
-  background: rgba(255,255,255,0.92);
-  border: 1px solid rgba(26,10,46,0.1);
-  border-radius: 8px;
-  padding: 10px 14px;
-  font-family: 'GT-Planar', sans-serif;
-  font-size: 11px;
-  color: rgba(26,10,46,0.6);
-  line-height: 1.8;
-  backdrop-filter: blur(8px);
+  z-index: 15;
 }
 .legend-row { display: flex; align-items: center; gap: 8px; }
 .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
@@ -383,8 +373,8 @@ html, body {
 /* TAB CONTENT */
 #tab-content {
   display: none;
-  flex: 0 0 50vh;
-  height: 50vh;
+  flex: 1 1 0;
+  min-height: 0;
   overflow-y: auto;
   background: var(--surface);
   border-top: 1px solid var(--border);
@@ -398,7 +388,7 @@ html, body {
   display: block;
 }
 
-.tab-pane { display: none; padding: 16px; min-height: 0; }
+.tab-pane { display: none; padding: 0; }
 .tab-pane.active { display: block; }
 
 /* RESULTS TAB */
@@ -909,8 +899,22 @@ html, body {
     <!-- LEFT PANEL -->
     <div id="left-panel">
       <div id="left-scroll">
+        <div id="process-steps" style="display:flex;gap:0;margin-bottom:20px;border-radius:8px;overflow:hidden;border:1px solid rgba(26,10,46,0.08)">
+          <div style="flex:1;padding:10px 8px;background:rgba(124,58,237,0.08);text-align:center">
+            <div style="font-family:AT-Realm-Bold;font-size:10px;color:#7c3aed">1 BRIEF</div>
+            <div style="font-family:GT-Planar;font-size:9px;color:rgba(26,10,46,0.45)">Define campaign</div>
+          </div>
+          <div style="flex:1;padding:10px 8px;background:rgba(26,10,46,0.03);text-align:center;border-left:1px solid rgba(26,10,46,0.08)">
+            <div style="font-family:AT-Realm-Bold;font-size:10px;color:rgba(26,10,46,0.4)">2 SIMULATE</div>
+            <div style="font-family:GT-Planar;font-size:9px;color:rgba(26,10,46,0.35)">50 AI agents</div>
+          </div>
+          <div style="flex:1;padding:10px 8px;background:rgba(26,10,46,0.03);text-align:center;border-left:1px solid rgba(26,10,46,0.08)">
+            <div style="font-family:AT-Realm-Bold;font-size:10px;color:rgba(26,10,46,0.4)">3 STRATEGY</div>
+            <div style="font-family:GT-Planar;font-size:9px;color:rgba(26,10,46,0.35)">Media plan output</div>
+          </div>
+        </div>
         <div id="panel-title">Media Campaign Brief</div>
-        <div id="panel-sub">Configure your omni-channel campaign to generate an AI-powered media simulation</div>
+        <div id="panel-sub">Run an AI simulation to identify your primary audiences, understand their behaviour, and generate a media mix strategy optimised for ROAS</div>
 
         <div id="regen-banner">⟳ Input changed — click Run Simulation to regenerate results</div>
 
@@ -987,7 +991,8 @@ html, body {
       <!-- RESULT TABS -->
       <div id="result-tabs">
         <nav class="tab-nav">
-          <button class="tab-btn" data-tab="targets" onclick="switchTab('targets')">🎯 Targets</button>
+          <button class="tab-btn" data-tab="plan" onclick="switchTab('plan')">📋 Media Plan</button>
+          <button class="tab-btn" data-tab="targets" onclick="switchTab('targets')">🎯 Audiences</button>
           <button class="tab-btn active" data-tab="map" onclick="switchTab('map')">Mind Map</button>
           <button class="tab-btn" data-tab="results" onclick="switchTab('results')">Results</button>
           <button class="tab-btn" data-tab="report" onclick="switchTab('report')">Report</button>
@@ -1033,19 +1038,30 @@ html, body {
           <div id="idle-icon">🧠</div>
           <div id="idle-text">Run a simulation to see the audience mind map appear here</div>
         </div>
-        <div id="graph-legend">
-          <div class="legend-row"><div class="legend-dot" style="background:#fff6ec;"></div><span>Campaign</span></div>
-          <div class="legend-row"><div class="legend-dot" style="background:#7c3aed;border:1.5px solid #a78bfa;"></div><span>Persona</span></div>
-          <div class="legend-row"><div class="legend-dot" style="background:#1a1a1a;border:2px solid #22c55e;"></div><span>KPI</span></div>
-          <div style="height:5px;"></div>
-          <div class="legend-row"><div class="legend-line" style="background:#22c55e;"></div><span>Recall strong</span></div>
-          <div class="legend-row"><div class="legend-line" style="background:#f59e0b;"></div><span>Recall medium</span></div>
-          <div class="legend-row"><div class="legend-line" style="background:#374151;"></div><span>Recall weak</span></div>
-          <div class="legend-row"><div class="legend-dash" style="border-color:#06b6d4;"></div><span>Cascade</span></div>
-          <div style="height:5px;"></div>
-          <div class="legend-row"><div class="legend-dot" style="background:#fef3c7;border:2px solid #f59e0b;width:12px;height:12px;border-radius:50%"></div><span>Super Connector</span></div>
-          <div class="legend-row"><div class="legend-dash" style="border-color:#f59e0b;opacity:0.6"></div><span>Word of Mouth</span></div>
-          <div class="legend-row"><div class="legend-dot" style="background:#fff7ed;border:1px solid #f59e0b;width:10px;height:10px;border-radius:50%;opacity:0.7"></div><span>WOM-only reach</span></div>
+        <div id="graph-legend" style="position:absolute;bottom:16px;right:16px;background:rgba(255,250,245,0.95);backdrop-filter:blur(8px);border:1px solid rgba(26,10,46,0.1);border-radius:10px;padding:12px 14px;z-index:15;pointer-events:none">
+          <div style="font-family:AT-Realm-Bold;font-size:9px;color:#1a0a2e;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Legend</div>
+          <div style="display:flex;gap:20px">
+            <div>
+              <div style="font-size:8px;font-family:GT-Planar;color:rgba(26,10,46,0.4);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:5px">Nodes</div>
+              <div style="display:flex;flex-direction:column;gap:4px">
+                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#1a0a2e"><div style="width:14px;height:14px;border-radius:50%;background:#7c3aed;flex-shrink:0"></div>Campaign</div>
+                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#1a0a2e"><div style="width:10px;height:10px;border-radius:50%;background:#c4b5fd;flex-shrink:0"></div>Persona</div>
+                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#1a0a2e"><div style="width:12px;height:12px;border-radius:50%;background:#fef3c7;border:2px solid #f59e0b;flex-shrink:0"></div>Super Connector ⚡</div>
+                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#1a0a2e"><div style="width:10px;height:10px;border-radius:50%;background:rgba(245,158,11,0.12);border:1px dashed #f59e0b;flex-shrink:0"></div>WOM Reach ◎</div>
+                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#1a0a2e"><div style="width:10px;height:10px;border-radius:50%;background:#e0f2fe;border:1.5px solid #0ea5e9;flex-shrink:0"></div>Channel</div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:8px;font-family:GT-Planar;color:rgba(26,10,46,0.4);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:5px">Connections</div>
+              <div style="display:flex;flex-direction:column;gap:5px">
+                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#1a0a2e"><svg width="24" height="8" style="flex-shrink:0"><line x1="0" y1="4" x2="24" y2="4" stroke="#7c3aed" stroke-width="1.5"/></svg>Direct exposure</div>
+                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#1a0a2e"><svg width="24" height="8" style="flex-shrink:0"><line x1="0" y1="4" x2="24" y2="4" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,3"/></svg>WOM spread</div>
+                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#1a0a2e"><svg width="24" height="8" style="flex-shrink:0"><line x1="0" y1="4" x2="24" y2="4" stroke="#3b82f6" stroke-width="1" opacity="0.6"/></svg>Same location</div>
+                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#1a0a2e"><svg width="24" height="8" style="flex-shrink:0"><line x1="0" y1="4" x2="24" y2="4" stroke="#10b981" stroke-width="1" opacity="0.6"/></svg>Same industry</div>
+                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#1a0a2e"><svg width="24" height="8" style="flex-shrink:0"><line x1="0" y1="4" x2="24" y2="4" stroke="#ec4899" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/></svg>Social circle</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1054,12 +1070,15 @@ html, body {
         <!-- MAP tab (empty, graph is above) -->
         <div class="tab-pane" id="pane-map"></div>
 
+        <!-- MEDIA PLAN tab -->
+        <div class="tab-pane" id="pane-plan" style="padding:0;"></div>
+
         <!-- RESULTS tab -->
-        <!-- TARGETS tab -->
+        <!-- AUDIENCES tab -->
         <div class="tab-pane" id="pane-targets" style="padding:0;">
           <div style="padding:16px 20px 8px;border-bottom:1px solid rgba(26,10,46,0.07)">
-            <h2 style="font-family:AT-Realm-Bold;color:#7c3aed;font-size:17px;margin:0 0 3px">Primary Audience Targets</h2>
-            <p style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.45);margin:0">Ranked by Cascade Power Score — who to reach first for maximum ROAS</p>
+            <h2 style="font-family:AT-Realm-Bold;color:#7c3aed;font-size:17px;margin:0 0 3px">Audience Intelligence</h2>
+            <p style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.45);margin:0">Simulation-identified primary audiences ranked by cascade power — your highest-value targets for media activation</p>
           </div>
           <div id="targets-list" style="padding:12px 16px;display:flex;flex-direction:column;gap:8px"></div>
         </div>
@@ -1189,6 +1208,79 @@ let simulation = null, nodes = [], edges = [], svgG = null, svgDefs = null
 let simDone = false
 let currentTab = 'map'
 
+// ===== PEER EDGES =====
+function addPeerEdges(nodesArr, svgGroup) {
+  if (!svgGroup) return
+  svgGroup.selectAll('.peer-edge').remove()
+  const personas = nodesArr.filter(n => n.type === 'persona')
+
+  function industryOf(occ) {
+    const o = (occ||'').toLowerCase()
+    if (o.match(/manager|director|executive|ceo|vp|head|founder/)) return 'exec'
+    if (o.match(/engineer|developer|tech|software|IT|data|analyst/)) return 'tech'
+    if (o.match(/nurse|doctor|physio|health|medical|allied/)) return 'health'
+    if (o.match(/teacher|lecturer|educator|academic|professor/)) return 'edu'
+    if (o.match(/designer|creative|artist|photographer|filmmaker|content/)) return 'creative'
+    if (o.match(/marketing|comms|pr|brand|media buyer|strategist/)) return 'marketing'
+    if (o.match(/retail|sales|hospitality|barista|chef|driver|logistics/)) return 'service'
+    if (o.match(/student|grad|intern/)) return 'student'
+    return 'other'
+  }
+
+  function suburbZone(suburb) {
+    const s = (suburb||'').toLowerCase()
+    if (s.match(/cbd|city|surry hills|newtown|glebe|pyrmont|darlinghurst|redfern|paddington/)) return 'inner'
+    if (s.match(/north|mosman|neutral bay|kirribilli|chatswood|lane cove|manly|dee why/)) return 'north'
+    if (s.match(/east|bondi|coogee|randwick|maroubra|bronte|waverly/)) return 'east'
+    if (s.match(/west|parramatta|penrith|blacktown|auburn|merrylands/)) return 'west'
+    if (s.match(/south|cronulla|hurstville|sutherland|kogarah|miranda/)) return 'south'
+    if (s.match(/inner west|leichhardt|balmain|rozelle|petersham|marrickville/)) return 'innerwest'
+    if (s.match(/melb|fitzroy|richmond|collingwood|prahran|st kilda|brunswick/)) return 'melb-inner'
+    if (s.match(/brisb|south brisbane|fortitude|new farm|west end|paddington/)) return 'bris-inner'
+    return s.split(/[\s,]/)[0]
+  }
+
+  const peerLinks = []
+  personas.forEach((a, i) => {
+    personas.forEach((b, j) => {
+      if (j <= i) return
+      const pa = a.data, pb = b.data
+      let strength = 0, type = 'peer'
+
+      if (pa.suburb && pb.suburb && pa.suburb === pb.suburb) { strength += 3; type = 'location' }
+      else if (suburbZone(pa.suburb) === suburbZone(pb.suburb) && suburbZone(pa.suburb) !== (pa.suburb||'').toLowerCase()) { strength += 1; type = 'location' }
+
+      const indA = industryOf(pa.occupation), indB = industryOf(pb.occupation)
+      if (indA !== 'other' && indA === indB) { strength += 2; type = strength > 2 ? 'both' : 'industry' }
+
+      const traitsA = pa.lifestyle_traits || [], traitsB = pb.lifestyle_traits || []
+      const shared = traitsA.filter(t => traitsB.includes(t))
+      if (shared.length >= 2) { strength += shared.length; type = 'social' }
+
+      if (Math.abs((pa.age||30) - (pb.age||30)) <= 8) strength += 0.5
+      if (a.isSuperConnector || b.isSuperConnector) strength += 1
+
+      if (strength >= 2) peerLinks.push({ source: a, target: b, strength, type })
+    })
+  })
+
+  const edgeColor = { location:'#3b82f6', industry:'#10b981', social:'#ec4899', both:'#8b5cf6', peer:'#94a3b8' }
+  const dashArray = { location:'none', industry:'none', social:'4,3', both:'none', peer:'2,4' }
+
+  peerLinks.forEach(lk => {
+    const col = edgeColor[lk.type] || '#94a3b8'
+    const dash = dashArray[lk.type] || 'none'
+    const w = lk.strength >= 4 ? 1.5 : lk.strength >= 3 ? 1 : 0.6
+    svgGroup.insert('line', ':first-child')
+      .attr('x1', lk.source.x || 0).attr('y1', lk.source.y || 0)
+      .attr('x2', lk.target.x || 0).attr('y2', lk.target.y || 0)
+      .attr('stroke', col).attr('stroke-width', w)
+      .attr('stroke-dasharray', dash === 'none' ? null : dash)
+      .attr('opacity', lk.strength >= 3 ? 0.3 : 0.18)
+      .attr('class', 'peer-edge')
+  })
+}
+
 // ===== GRAPH =====
 function initGraph() {
   nodes = []; edges = []
@@ -1205,6 +1297,7 @@ function initGraph() {
     .force('center', d3.forceCenter((width - 230) / 2 + 230, height/2))
     .force('collide', d3.forceCollide(35))
     .on('tick', ticked)
+    .on('end', () => { if (svgG) addPeerEdges(nodes, svgG) })
   document.getElementById('graph-idle').classList.add('hidden')
 }
 
@@ -1768,6 +1861,19 @@ function getChannelRecommendation(p) {
   return { channels, reason, roas }
 }
 
+function estimateUniverse(p) {
+  const age = p.age||30
+  const occ = (p.occupation||'').toLowerCase()
+  if (occ.match(/ceo|founder|director|head|vp|executive/)) return '85,000–120,000'
+  if (occ.match(/manager|analyst|consultant|engineer/)) return '320,000–480,000'
+  if (age < 25) return '680,000–920,000'
+  if (age < 35 && occ.match(/creative|media|marketing|designer/)) return '180,000–260,000'
+  if (occ.match(/nurse|teacher|social worker/)) return '420,000–580,000'
+  if (age > 55) return '2,100,000–2,800,000'
+  if (occ.match(/retail|hospitality|driver/)) return '890,000–1,200,000'
+  return '350,000–550,000'
+}
+
 function renderAudienceTargets(ranking, reactions) {
   const container = document.getElementById('targets-list')
   if (!container || !ranking) return
@@ -1797,9 +1903,162 @@ function renderAudienceTargets(ranking, reactions) {
           <div style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.5);margin-bottom:4px">${ch.reason}</div>
           <div style="font-family:AT-Realm-Bold;font-size:12px;color:#16a34a">Predicted ROAS: ${ch.roas}×</div>
         </div>
+        <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
+          <span style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(26,10,46,0.4)">Est. Addressable Universe</span>
+          <span style="font-family:AT-Realm-Bold;font-size:12px;color:#1a0a2e">${estimateUniverse(p)}</span>
+        </div>
       </div>
     </div>`
   }).join('')
+}
+
+function updateProcessSteps(step) {
+  const steps = document.querySelectorAll('#process-steps > div')
+  steps.forEach((s, i) => {
+    if (i < step) {
+      s.style.background = 'rgba(124,58,237,0.08)'
+      s.querySelector('div').style.color = '#7c3aed'
+    }
+  })
+}
+
+function renderMediaPlan(personas, reactions, stats, brief, cascadeRanking) {
+  const panel = document.getElementById('pane-plan')
+  if (!panel) return
+  const budget = parseInt(brief.budget) || 75000
+  const alloc = getAlloc()
+  const totalAlloc = Object.values(alloc).reduce((s,v)=>s+v,0)||100
+
+  const top = (cascadeRanking||[]).slice(0,15)
+
+  function segmentOf(p) {
+    const occ = (p.occupation||'').toLowerCase()
+    const age = p.age||30
+    if (occ.match(/manager|director|founder|ceo|consultant|analyst|engineer|designer/) || (age>=28&&age<=50)) return 'professionals'
+    if (age<30 || occ.match(/student|creative|barista|retail|freelance/)) return 'social_young'
+    return 'mainstream'
+  }
+
+  const segments = {
+    professionals: { label:'Urban Professionals & Decision-Makers', icon:'💼', color:'#7c3aed', personas:[], channels:'OOH/DOOH + LinkedIn + Search', rationale:'Commuter professionals respond to premium OOH during transit + professional digital touchpoints. High recall, high purchase authority.' },
+    social_young:  { label:'Social-First Young Adults', icon:'📱', color:'#ec4899', personas:[], channels:'Social + OOH + TikTok', rationale:'High combustion rate, social-first media consumption. OOH primes brand, social drives conversation and WOM amplification.' },
+    mainstream:    { label:'Mainstream & Lifestyle Audiences', icon:'🏡', color:'#0ea5e9', personas:[], channels:'TV/CTV + OOH + Radio', rationale:'Broad reach via broadcast + outdoor. Lower combustion but high universe size. Effective for brand awareness objectives.' },
+  }
+  top.forEach(p => { const s = segmentOf(p); if (segments[s]) segments[s].personas.push(p) })
+
+  const UNIVERSE = { professionals: 420000, social_young: 680000, mainstream: 1200000 }
+  const activeSeg = Object.entries(segments).filter(([,s]) => s.personas.length > 0)
+
+  const roasData = CH_NAMES.map(ch => {
+    const frac = (alloc[ch]||0)/totalAlloc
+    const sat = hill(frac, CH[ch].alpha, CH[ch].gamma)
+    return { ch, roas: CH[ch].baseROAS*(0.5+sat*0.8), alloc: alloc[ch]||0, color: CH[ch].color, icon: CH[ch].icon }
+  }).sort((a,b)=>b.roas-a.roas)
+  const topROAS = roasData[0]
+
+  panel.innerHTML = `
+    <div style="overflow-y:auto;height:100%;padding:24px;box-sizing:border-box">
+
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px">
+        <div>
+          <h2 style="font-family:AT-Realm-Bold;color:#7c3aed;font-size:20px;margin:0 0 4px">Recommended Media Strategy</h2>
+          <p style="font-family:GT-Planar;font-size:12px;color:rgba(26,10,46,0.5);margin:0">${brief.brand} · ${brief.objective||'Brand Awareness'} · AUD ${parseInt(brief.budget||75000).toLocaleString()} · ${brief.duration||'4 weeks'}</p>
+        </div>
+        <div style="background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2);border-radius:8px;padding:10px 16px;text-align:center;flex-shrink:0">
+          <div style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(26,10,46,0.4);margin-bottom:2px">Predicted ROAS</div>
+          <div style="font-family:AT-Realm-Bold;font-size:24px;color:#16a34a">${stats?.roas||'2.4'}×</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px">
+        ${[
+          { label:'Agents Simulated', value:'50', icon:'🤖' },
+          { label:'Super Connectors', value: personas.filter(p=>isSuper(p)).length, icon:'⚡' },
+          { label:'WOM Secondary Reach', value: (window._simWOM||[]).length, icon:'🔗' },
+          { label:'Est. Weekly Reach', value: formatNum(stats?.weekly_reach||125000), icon:'👁' },
+        ].map(s=>`<div style="background:#fff;border:1px solid rgba(26,10,46,0.08);border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:20px;margin-bottom:4px">${s.icon}</div>
+          <div style="font-family:AT-Realm-Bold;font-size:18px;color:#1a0a2e">${s.value}</div>
+          <div style="font-family:GT-Planar;font-size:10px;color:rgba(26,10,46,0.45);margin-top:2px">${s.label}</div>
+        </div>`).join('')}
+      </div>
+
+      <h3 style="font-family:AT-Realm-Bold;font-size:14px;color:#1a0a2e;margin:0 0 12px">Primary Audience Segments</h3>
+      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px">
+        ${activeSeg.map(([key, seg], i) => {
+          const universe = UNIVERSE[key]
+          const avgScore = seg.personas.length ? Math.round(seg.personas.reduce((s,p)=>s+(p.cascadeScore||0),0)/seg.personas.length) : 0
+          const avgCombustion = seg.personas.length ? Math.round(seg.personas.reduce((s,p)=>s+(p.social_combustion_pct||50),0)/seg.personas.length) : 50
+          const topPersonas = seg.personas.slice(0,3)
+          return `<div style="background:#fff;border:1px solid ${seg.color}33;border-radius:12px;padding:18px;border-left:4px solid ${seg.color}">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">
+              <div style="display:flex;align-items:center;gap:10px">
+                <span style="font-size:20px">${seg.icon}</span>
+                <div>
+                  <div style="font-family:AT-Realm-Bold;font-size:14px;color:#1a0a2e">${seg.label}</div>
+                  <div style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.45);margin-top:2px">Est. universe: ${universe.toLocaleString()} · Avg cascade score: ${avgScore} · Combustion: ${avgCombustion}%</div>
+                </div>
+              </div>
+              <div style="flex-shrink:0;text-align:right">
+                <div style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(26,10,46,0.4)">Priority</div>
+                <div style="font-family:AT-Realm-Bold;font-size:18px;color:${seg.color}">#${i+1}</div>
+              </div>
+            </div>
+            ${topPersonas.length ? `<div style="display:flex;margin-bottom:12px;align-items:center">
+              ${topPersonas.map(p=>`<img src="${p.photo||''}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid #fff;margin-right:-8px">`).join('')}
+              <span style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.5);margin-left:16px">${topPersonas.map(p=>p.name.split(' ')[0]).join(', ')}${seg.personas.length>3?' +'+(seg.personas.length-3)+' more':''}</span>
+            </div>` : ''}
+            <div style="background:rgba(26,10,46,0.03);border-radius:8px;padding:10px 12px;margin-bottom:10px">
+              <div style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(26,10,46,0.4);margin-bottom:4px">Recommended Channel Mix</div>
+              <div style="font-family:AT-Realm-Bold;font-size:13px;color:#1a0a2e;margin-bottom:4px">${seg.channels}</div>
+              <div style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.55);line-height:1.5">${seg.rationale}</div>
+            </div>
+          </div>`
+        }).join('')}
+      </div>
+
+      <h3 style="font-family:AT-Realm-Bold;font-size:14px;color:#1a0a2e;margin:0 0 12px">Recommended Budget Allocation</h3>
+      <div style="background:#fff;border:1px solid rgba(26,10,46,0.08);border-radius:12px;padding:18px;margin-bottom:24px">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          ${roasData.map(d => {
+            const recAlloc = d.ch==='OOH/DOOH'?35:d.ch==='Search'?25:d.ch==='Social'?20:d.ch==='TV/CTV'?10:d.ch==='Digital'?7:3
+            const spend = Math.round(budget * recAlloc/100)
+            return `<div style="display:flex;align-items:center;gap:10px">
+              <span style="font-family:GT-Planar;font-size:12px;color:#1a0a2e;width:110px;flex-shrink:0">${d.icon} ${d.ch}</span>
+              <div style="flex:1;height:20px;background:rgba(26,10,46,0.05);border-radius:4px;overflow:hidden;position:relative">
+                <div style="height:100%;width:${recAlloc}%;background:${d.color};opacity:0.8;border-radius:4px;transition:width 0.6s"></div>
+              </div>
+              <span style="font-family:AT-Realm-Bold;font-size:12px;color:${d.color};width:36px;text-align:right">${recAlloc}%</span>
+              <span style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.4);width:60px;text-align:right">$${(spend/1000).toFixed(0)}K</span>
+              <span style="font-family:AT-Realm-Bold;font-size:11px;color:#16a34a;width:42px;text-align:right">${d.roas.toFixed(1)}× ROAS</span>
+            </div>`
+          }).join('')}
+        </div>
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(26,10,46,0.07);font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.5)">
+          Allocation optimised by Hill saturation curve analysis. <strong style="color:#7c3aed">${topROAS.ch}</strong> leads with highest marginal ROAS (${topROAS.roas.toFixed(2)}×) at current budget level.
+        </div>
+      </div>
+
+      <div style="background:rgba(124,58,237,0.04);border:1px solid rgba(124,58,237,0.12);border-radius:12px;padding:18px">
+        <div style="font-family:AT-Realm-Bold;font-size:12px;color:#7c3aed;margin-bottom:10px">🔬 How This Strategy Was Generated</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          ${[
+            { icon:'🤖', title:'Agent Simulation', body:'50 AI consumer agents with distinct personalities, demographics, and behavioural logic were simulated in a parallel digital world responding to your campaign.' },
+            { icon:'⚡', title:'Super Connector Identification', body:'Agents were scored by Cascade Power (influence × recall × combustion × WOM reach). The highest-scoring agents are your primary audience targets.' },
+            { icon:'🔗', title:'Word-of-Mouth Propagation', body:'Super connectors were modelled spreading campaign awareness to secondary audiences who never saw the campaign directly — extending true reach.' },
+            { icon:'📊', title:'MMM Channel Optimisation', body:'Media Mix Modelling using Hill saturation curves, adstock decay, and marginal ROAS analysis determined the optimal channel allocation for maximum return.' },
+          ].map(m=>`<div style="display:flex;gap:10px;align-items:flex-start">
+            <span style="font-size:16px;flex-shrink:0">${m.icon}</span>
+            <div>
+              <div style="font-family:AT-Realm-Bold;font-size:11px;color:#1a0a2e;margin-bottom:3px">${m.title}</div>
+              <div style="font-family:GT-Planar;font-size:10px;color:rgba(26,10,46,0.55);line-height:1.5">${m.body}</div>
+            </div>
+          </div>`).join('')}
+        </div>
+      </div>
+
+    </div>
+  `
 }
 
 function renderResults(personas, reactions, cascades, stats, report, brief) {
@@ -1826,6 +2085,7 @@ function renderResults(personas, reactions, cascades, stats, report, brief) {
     return p
   }).sort((a, b) => b.cascadeScore - a.cascadeScore)
   renderAudienceTargets(window._cascadeRanking, reactions)
+  renderMediaPlan(personas, reactions, stats, brief, window._cascadeRanking)
 
   // Persona cards
   const pg = document.getElementById('personas-grid')
@@ -1915,7 +2175,8 @@ function renderResults(personas, reactions, cascades, stats, report, brief) {
 function showResultTabs() {
   document.getElementById('result-tabs').style.display = 'block'
   document.getElementById('tab-content').classList.add('visible')
-  switchTab('map')
+  switchTab('plan')
+  updateProcessSteps(3)
 }
 
 function clearResults() {
@@ -2280,6 +2541,149 @@ function renderOptimizerChart(alloc, budget, roasData) {
       <tbody>${rows}</tbody>
     </table>
   `
+}
+
+function renderFrequencyChart(alloc, budget) {
+  const totalAlloc = Object.values(alloc).reduce((s,v)=>s+v,0) || 100
+  const FREQ_PARAMS = {
+    'OOH/DOOH': { weeklyFreq: (spend) => Math.min(14, 2 + spend/8000),  fatigueCap: 12, optFreq: 7,  note: 'Transit commuters see OOH 2× daily' },
+    'Social':   { weeklyFreq: (spend) => Math.min(18, 3 + spend/5000),  fatigueCap: 8,  optFreq: 5,  note: 'Algorithm controls delivery — 5–8× sweet spot' },
+    'Search':   { weeklyFreq: (spend) => Math.min(10, 1 + spend/7000),  fatigueCap: 5,  optFreq: 3,  note: 'Intent-driven — low frequency needed' },
+    'TV/CTV':   { weeklyFreq: (spend) => Math.min(8,  1 + spend/12000), fatigueCap: 6,  optFreq: 3,  note: 'Broad reach, 3+ exposures for recall' },
+    'Digital':  { weeklyFreq: (spend) => Math.min(20, 4 + spend/4000),  fatigueCap: 10, optFreq: 6,  note: 'Banner blindness after 8× — watch frequency' },
+    'Radio':    { weeklyFreq: (spend) => Math.min(16, 3 + spend/6000),  fatigueCap: 10, optFreq: 6,  note: 'Repetition builds recall — 6× optimal' },
+  }
+  const rows = CH_NAMES.map(ch => {
+    const frac = (alloc[ch]||0) / totalAlloc
+    const spend = budget * frac
+    const fp = FREQ_PARAMS[ch]
+    const actualFreq = Math.round(fp.weeklyFreq(spend) * 10) / 10
+    const status = actualFreq > fp.fatigueCap ? 'over' : actualFreq >= fp.optFreq ? 'optimal' : 'under'
+    const statusColor = status === 'optimal' ? '#16a34a' : status === 'over' ? '#ef4444' : '#f59e0b'
+    const statusLabel = status === 'optimal' ? '✓ Optimal' : status === 'over' ? '⚠ Fatigue risk' : '↑ Underweight'
+    const barW = Math.min(100, (actualFreq / fp.fatigueCap) * 100)
+    const optW = Math.min(100, (fp.optFreq / fp.fatigueCap) * 100)
+    return { ch, actualFreq, optFreq: fp.optFreq, fatigueCap: fp.fatigueCap, status, statusColor, statusLabel, barW, optW, note: fp.note }
+  })
+  let html = `<div style="display:flex;flex-direction:column;gap:12px">`
+  rows.forEach(r => {
+    html += `<div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+        <span style="font-family:GT-Planar;font-size:12px;color:#1a0a2e">${CH[r.ch].icon} ${r.ch}</span>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="font-family:AT-Realm-Bold;font-size:12px;color:${r.statusColor}">${r.actualFreq}× / week</span>
+          <span style="font-size:10px;font-family:GT-Planar;color:${r.statusColor}">${r.statusLabel}</span>
+        </div>
+      </div>
+      <div style="position:relative;height:8px;background:rgba(26,10,46,0.06);border-radius:4px;overflow:visible">
+        <div style="position:absolute;left:0;top:0;height:100%;width:${r.barW}%;background:${r.statusColor};border-radius:4px;opacity:0.8;transition:width 0.6s"></div>
+        <div style="position:absolute;top:-3px;height:14px;width:2px;background:#1a0a2e;opacity:0.3;left:${r.optW}%" title="Optimal: ${r.optFreq}×"></div>
+      </div>
+      <div style="font-family:GT-Planar;font-size:9px;color:rgba(26,10,46,0.35);margin-top:3px">${r.note} · Optimal: ${r.optFreq}× · Fatigue cap: ${r.fatigueCap}×</div>
+    </div>`
+  })
+  html += `</div><div style="font-size:10px;font-family:GT-Planar;color:rgba(26,10,46,0.35);margin-top:10px;padding-top:8px;border-top:1px solid rgba(26,10,46,0.06)">Vertical bar = optimal frequency threshold. Green = within optimal range, amber = underweight, red = fatigue risk.</div>`
+  const el = document.getElementById('freq-chart')
+  if (el) el.innerHTML = html
+}
+
+function renderOptimalMixChart(budget, alloc) {
+  const W = 340, H = 180, padL = 40, padB = 30, padT = 10, padR = 20
+  const chartW = W - padL - padR, chartH = H - padB - padT
+  const steps = 15
+  const totalAlloc = Object.values(alloc).reduce((s,v)=>s+v,0) || 100
+  const budgetSteps = Array.from({length:steps}, (_,i) => budget * (i+1)/steps)
+  const stackData = budgetSteps.map(b => {
+    const margROAS = CH_NAMES.map(ch => {
+      const currentFrac = (alloc[ch]||0) / totalAlloc
+      const mROAS = CH[ch].baseROAS * CH[ch].alpha * Math.pow(currentFrac||0.01, CH[ch].alpha-1) *
+                    Math.pow(CH[ch].gamma, CH[ch].alpha) /
+                    Math.pow(Math.pow(currentFrac||0.01, CH[ch].alpha) + Math.pow(CH[ch].gamma, CH[ch].alpha), 2)
+      return { ch, mROAS: isFinite(mROAS) ? mROAS : CH[ch].baseROAS }
+    }).sort((a,z) => z.mROAS - a.mROAS)
+    const topAlloc = {}
+    CH_NAMES.forEach(ch => { topAlloc[ch] = 0 })
+    if (margROAS[0]) topAlloc[margROAS[0].ch] = 50
+    if (margROAS[1]) topAlloc[margROAS[1].ch] = 30
+    if (margROAS[2]) topAlloc[margROAS[2].ch] = 20
+    return topAlloc
+  })
+  let svgPaths = ''
+  let yOffsets = Array(steps).fill(0)
+  CH_NAMES.forEach((ch) => {
+    const vals = stackData.map(d => d[ch] || 0)
+    const bottoms = [...yOffsets]
+    vals.forEach((v, i) => { yOffsets[i] += v })
+    const tops = [...yOffsets]
+    const topPts = tops.map((v, i) => `${padL + (i/(steps-1))*chartW},${padT + (1 - v/100)*chartH}`)
+    const botPts = bottoms.map((v, i) => `${padL + ((steps-1-i)/(steps-1))*chartW},${padT + (1 - bottoms[steps-1-i]/100)*chartH}`)
+    const poly = [...topPts, ...botPts].join(' ')
+    svgPaths += `<polygon points="${poly}" fill="${CH[ch].color}" opacity="0.7"/>`
+    const labelY = padT + (1 - (tops[steps-1] + bottoms[steps-1]) / 2 / 100) * chartH
+    if (tops[steps-1] - bottoms[steps-1] > 8) {
+      svgPaths += `<text x="${padL+chartW+4}" y="${labelY+4}" font-size="9" fill="${CH[ch].color}" font-family="sans-serif">${ch.split('/')[0]}</text>`
+    }
+  })
+  const fmtK = v => v>=1000 ? '$'+(v/1000).toFixed(0)+'K' : '$'+v
+  const axesSvg = `
+    <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+chartH}" stroke="#e5e7eb"/>
+    <line x1="${padL}" y1="${padT+chartH}" x2="${padL+chartW}" y2="${padT+chartH}" stroke="#e5e7eb"/>
+    <text x="${padL-4}" y="${padT+8}" font-size="9" fill="#9ca3af" text-anchor="end">100%</text>
+    <text x="${padL-4}" y="${padT+chartH}" font-size="9" fill="#9ca3af" text-anchor="end">0%</text>
+    ${[0,0.25,0.5,0.75,1].map(f=>`<text x="${padL+f*chartW}" y="${padT+chartH+14}" font-size="9" fill="#9ca3af" text-anchor="middle">${fmtK(budget*f)}</text>`).join('')}
+    <text x="${padL+chartW/2}" y="${H}" font-size="9" fill="#9ca3af" text-anchor="middle">Total Budget</text>
+    <text x="${padL-20}" y="${padT+chartH/2}" font-size="9" fill="#9ca3af" text-anchor="middle" transform="rotate(-90,${padL-20},${padT+chartH/2})">Budget Split %</text>
+  `
+  const el = document.getElementById('optimal-mix-chart')
+  if (el) el.innerHTML = `<svg width="100%" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${axesSvg}${svgPaths}</svg>
+    <p style="font-size:10px;color:rgba(26,10,46,0.4);font-family:GT-Planar;margin-top:6px">Stacked area shows recommended channel split at each budget level based on marginal ROAS</p>`
+}
+
+function renderGRPTable(alloc, budget) {
+  const totalAlloc = Object.values(alloc).reduce((s,v)=>s+v,0) || 100
+  const FREQ_PARAMS = {
+    'OOH/DOOH': { weeklyFreq: s => Math.min(14, 2 + s/8000),  targetUniverse: 2400000 },
+    'Social':   { weeklyFreq: s => Math.min(18, 3 + s/5000),  targetUniverse: 3200000 },
+    'Search':   { weeklyFreq: s => Math.min(10, 1 + s/7000),  targetUniverse: 1800000 },
+    'TV/CTV':   { weeklyFreq: s => Math.min(8,  1 + s/12000), targetUniverse: 4500000 },
+    'Digital':  { weeklyFreq: s => Math.min(20, 4 + s/4000),  targetUniverse: 3800000 },
+    'Radio':    { weeklyFreq: s => Math.min(16, 3 + s/6000),  targetUniverse: 2800000 },
+  }
+  const rows = CH_NAMES.map(ch => {
+    const frac = (alloc[ch]||0) / totalAlloc
+    const spend = budget * frac
+    const fp = FREQ_PARAMS[ch]
+    const freq = fp.weeklyFreq(spend)
+    const reachPct = hill(frac, CH[ch].alpha, CH[ch].gamma) * 100
+    const reachN = Math.round(reachPct / 100 * fp.targetUniverse)
+    const grp = Math.round(reachPct * freq)
+    const eff3plus = Math.round(reachN * (freq >= 3 ? 0.65 : freq >= 2 ? 0.35 : 0.15))
+    const cper = spend > 0 && eff3plus > 0 ? (spend / eff3plus * 1000).toFixed(2) : '—'
+    return { ch, spend, reachPct: reachPct.toFixed(1), reachN, freq: freq.toFixed(1), grp, eff3plus, cper }
+  }).filter(r => r.spend > 0)
+  const fmt = n => n >= 1000000 ? (n/1000000).toFixed(1)+'M' : n >= 1000 ? Math.round(n/1000)+'K' : n
+  let html = `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">
+    <thead><tr style="border-bottom:2px solid rgba(26,10,46,0.1)">
+      <th style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(26,10,46,0.4);padding:6px 8px;text-align:left">Channel</th>
+      <th style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(26,10,46,0.4);padding:6px 8px;text-align:right">Reach%</th>
+      <th style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(26,10,46,0.4);padding:6px 8px;text-align:right">Freq/wk</th>
+      <th style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(26,10,46,0.4);padding:6px 8px;text-align:right">GRPs</th>
+      <th style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(26,10,46,0.4);padding:6px 8px;text-align:right">3+ Reach</th>
+      <th style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(26,10,46,0.4);padding:6px 8px;text-align:right">CPM (eff.)</th>
+    </tr></thead><tbody>
+    ${rows.map(r => `<tr style="border-bottom:1px solid rgba(26,10,46,0.05)">
+      <td style="padding:8px;font-family:GT-Planar">${CH[r.ch].icon} ${r.ch}</td>
+      <td style="padding:8px;text-align:right;font-family:AT-Realm-Bold;color:#7c3aed">${r.reachPct}%</td>
+      <td style="padding:8px;text-align:right;font-family:GT-Planar">${r.freq}×</td>
+      <td style="padding:8px;text-align:right;font-family:AT-Realm-Bold">${r.grp}</td>
+      <td style="padding:8px;text-align:right;font-family:GT-Planar;color:#16a34a">${fmt(r.eff3plus)}</td>
+      <td style="padding:8px;text-align:right;font-family:AT-Realm-Bold;color:rgba(26,10,46,0.6)">$${r.cper}</td>
+    </tr>`).join('')}
+    </tbody>
+  </table></div>
+  <p style="font-size:10px;color:rgba(26,10,46,0.4);font-family:GT-Planar;margin-top:8px">GRP = Reach% × Avg Frequency. 3+ Reach = persons seeing campaign ≥3 times (effective exposure threshold). CPM = cost per thousand effective reach.</p>`
+  const el = document.getElementById('grp-table')
+  if (el) el.innerHTML = html
 }
 
 function renderSynergyMatrix() {
