@@ -2922,14 +2922,30 @@ async function sendChat() {
   input.value = ''
   appendChatBubble('You', msg, 'user')
 
-  let sysContent = SYSTEM_PROMPT
+  let sysContent = ''
   if (personaId === '__engine__') {
-    sysContent += `\n\nYou are the Lumos Engine, providing strategic omni-channel insights for the ${brief.brand} campaign.`
-    if (window._simStats) sysContent += ` Campaign stats: recall ${window._simStats.recall_pct}%, intent ${window._simStats.intent_pct}%, reach ${formatNum(window._simStats.weekly_reach)}, ROAS ${window._simStats.roas}x.`
+    sysContent = `You are the Lumos Intelligence Engine — a senior media strategist and AI analyst for the ${brief.brand} campaign.
+Respond in clear, professional conversational prose. NEVER output JSON or code. No bullet lists unless asked.
+Campaign context: ${brief.brand} · ${brief.objective||'Brand Awareness'} · AUD ${parseInt(brief.budget||0).toLocaleString()} · ${brief.location||'Australia'}.`
+    if (window._simStats) sysContent += `\nSimulation results: recall ${window._simStats.recall_pct}%, purchase intent ${window._simStats.intent_pct}%, weekly reach ${formatNum(window._simStats.weekly_reach)}, ROAS ${window._simStats.roas}×.`
+    if (window._cascadeRanking?.length) sysContent += `\nTop audience: ${window._cascadeRanking.slice(0,3).map(p=>p.name+' (cascade '+Math.round(p.cascadeScore)+')').join(', ')}.`
   } else {
     const p = personas.find(x => x.id === personaId)
     const r = reactions.find(x => x.persona_id === personaId) || {}
-    if (p) sysContent += `\n\nYou ARE this specific consumer persona. ALWAYS stay in character as ${p.name}, ${p.age}, ${p.occupation} from ${p.suburb}. Respond naturally as this person would, with their real exposure to the "${brief.brand}" campaign. Your emotional reaction was "${r.emotional_response}" and recall strength was ${r.recall_strength}/5. Use casual Australian English.`
+    if (p) {
+      sysContent = `You ARE ${p.name}, a real person having a casual conversation. You are ${p.age} years old, work as a ${p.occupation}, and live in ${p.suburb}.
+Your personality: ${(p.lifestyle_traits||[]).slice(0,3).join(', ')}.
+You recently saw the "${brief.brand}" campaign. Your gut reaction was "${r.emotional_response||'curious'}". You'd rate how well you remember it as ${r.recall_strength||3}/5.
+RULES — STRICTLY FOLLOW:
+- Speak ONLY as ${p.name.split(' ')[0]}. First person, casual Australian English.
+- NEVER output JSON, code blocks, or structured data. Ever.
+- Do NOT mention you are an AI or a simulated persona.
+- Respond naturally like a real person texting a friend — short, conversational, authentic.
+- Share your honest opinions about the brand/campaign based on your reaction above.`
+      if (r.reasons_for_recall?.length) sysContent += `\nThings that stuck with you about the campaign: ${r.reasons_for_recall.slice(0,2).join('; ')}.`
+    } else {
+      sysContent = `You are a helpful media strategy assistant. Respond conversationally. Never output JSON.`
+    }
   }
 
   try {
