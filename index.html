@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lumos — Audience Intelligence Simulator</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    :root {
+      --bg: #07080a;
+      --surface: #0f1013;
+      --surface2: #13151a;
+      --border: #1e2128;
+      --border2: #2a2d36;
+      --green: #34d399;
+      --green-dim: #1a6b4a;
+      --cyan: #38bdf8;
+      --cyan-dim: #164e6f;
+      --text: #e8eaf0;
+      --text-dim: #7a7f8e;
+      --text-muted: #4a4f5e;
+      --red: #f87171;
+      --amber: #fbbf24;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Grain overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* ─── Layout ─── */
+    .container { max-width: 1160px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+    /* ─── Header ─── */
+    header {
+      padding: 28px 0 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .logo-mark {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, var(--green) 0%, var(--cyan) 100%);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 16px; font-weight: 500;
+      color: #07080a;
+      flex-shrink: 0;
+    }
+    .header-text h1 {
+      font-family: 'Instrument Serif', serif;
+      font-style: italic;
+      font-size: 22px;
+      color: var(--text);
+      line-height: 1.1;
+    }
+    .header-text p {
+      font-size: 12px;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+    .mode-badge {
+      margin-left: auto;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      border: 1px solid;
+    }
+    .mode-badge.mock { color: var(--amber); border-color: #4a3a10; background: #1a140700; }
+    .mode-badge.live { color: var(--green); border-color: var(--green-dim); background: #0d2b1d; }
+
+    /* ─── Main Grid ─── */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 24px;
+      padding: 28px 0;
+      align-items: start;
+    }
+
+    /* ─── Panel ─── */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .panel-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .panel-header .icon {
+      width: 28px; height: 28px;
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+    }
+    .panel-header .icon.green { background: #0d2b1d; }
+    .panel-header .icon.cyan { background: #0a2030; }
+    .panel-header h2 {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+    .panel-body { padding: 20px; }
+
+    /* ─── Form ─── */
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      padding: 9px 12px;
+      outline: none;
+      transition: border-color 0.15s;
+      resize: none;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--green);
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder { color: var(--text-muted); }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .btn-run {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, var(--green) 0%, #22c57a 100%);
+      border: none;
+      border-radius: 9px;
+      color: #07080a;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      margin-top: 4px;
+    }
+    .btn-run:hover { opacity: 0.92; transform: translateY(-1px); }
+    .btn-run:active { transform: translateY(0); }
+    .btn-run:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    /* ─── Progress ─── */
+    .progress-panel { display: none; }
+    .progress-panel.visible { display: block; }
+
+    .progress-steps { list-style: none; padding: 0; }
+    .progress-steps li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--text-dim);
+      transition: color 0.3s;
+    }
+    .progress-steps li:last-child { border-bottom: none; }
+    .progress-steps li.active { color: var(--text); }
+    .progress-steps li.done { color: var(--green); }
+    .step-icon {
+      width: 24px; height: 24px; flex-shrink: 0;
+      border-radius: 50%;
+      border: 1.5px solid var(--border2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+      transition: all 0.3s;
+    }
+    .progress-steps li.active .step-icon {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+    .progress-steps li.done .step-icon {
+      border-color: var(--green);
+      background: var(--green-dim);
+      color: var(--green);
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { animation: spin 0.8s linear infinite; display: inline-block; }
+
+    /* ─── Results ─── */
+    #results { display: none; }
+    #results.visible { display: block; }
+
+    /* Stats Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+    }
+    .stat-card.green::after { background: linear-gradient(90deg, var(--green), transparent); }
+    .stat-card.cyan::after { background: linear-gradient(90deg, var(--cyan), transparent); }
+    .stat-card.amber::after { background: linear-gradient(90deg, var(--amber), transparent); }
+    .stat-card.red::after { background: linear-gradient(90deg, var(--red), transparent); }
+
+    .stat-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-card.green .stat-value { color: var(--green); }
+    .stat-card.cyan .stat-value { color: var(--cyan); }
+    .stat-card.amber .stat-value { color: var(--amber); }
+    .stat-card.red .stat-value { color: var(--red); }
+    .stat-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Section headers */
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Persona Cards */
+    .personas-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .persona-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .persona-card:hover { border-color: var(--border2); background: var(--surface2); }
+    .persona-card.selected { border-color: var(--cyan); }
+
+    .persona-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .persona-avatar {
+      width: 34px; height: 34px; flex-shrink: 0;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1a3a2a 0%, #0a2030 100%);
+      border: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+    }
+    .persona-name { font-size: 13px; font-weight: 600; line-height: 1.2; }
+    .persona-meta { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+    .persona-badges { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
+    .badge {
+      padding: 2px 7px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 500;
+      border: 1px solid;
+    }
+    .badge.positive { color: var(--green); border-color: var(--green-dim); background: #0d2b1d33; }
+    .badge.neutral { color: var(--amber); border-color: #4a3a10; background: #1a140733; }
+    .badge.negative { color: var(--red); border-color: #4a1010; background: #1a070733; }
+    .badge.noticed { color: var(--cyan); border-color: var(--cyan-dim); background: #0a203033; }
+    .badge.missed { color: var(--text-muted); border-color: var(--border2); background: transparent; }
+
+    .recall-bar { margin-bottom: 8px; }
+    .recall-label { font-size: 10px; color: var(--text-muted); margin-bottom: 4px; }
+    .recall-track {
+      height: 3px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .recall-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--green), var(--cyan));
+      transition: width 0.8s ease;
+    }
+
+    .persona-quote {
+      font-size: 11px;
+      color: var(--text-dim);
+      font-style: italic;
+      line-height: 1.4;
+      border-left: 2px solid var(--border2);
+      padding-left: 8px;
+    }
+
+    .skepticism-pip {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    /* Social Cascade */
+    .cascade-list { margin-bottom: 28px; }
+    .cascade-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .cascade-item:last-child { border-bottom: none; }
+    .channel-icon {
+      width: 30px; height: 30px; flex-shrink: 0;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+    }
+    .channel-icon.conversation { background: #1a2030; }
+    .channel-icon.instagram { background: #2a1020; }
+    .channel-icon.whatsapp { background: #0d2b1d; }
+
+    .cascade-meta {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-bottom: 4px;
+    }
+    .cascade-meta strong { color: var(--text); }
+    .cascade-message {
+      font-size: 12px;
+      color: var(--text);
+      line-height: 1.4;
+    }
+    .influence-chip {
+      margin-left: auto;
+      flex-shrink: 0;
+      font-size: 10px;
+      font-family: 'DM Mono', monospace;
+      color: var(--green);
+      padding: 2px 6px;
+      background: #0d2b1d;
+      border-radius: 4px;
+      border: 1px solid var(--green-dim);
+      align-self: center;
+    }
+
+    /* Report */
+    .report-body {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px 28px;
+      margin-bottom: 28px;
+      line-height: 1.7;
+    }
+    .report-body h1 { font-size: 18px; margin-bottom: 4px; color: var(--text); }
+    .report-body h2 { font-size: 14px; font-weight: 700; color: var(--cyan); margin: 20px 0 8px; letter-spacing: 0.02em; }
+    .report-body h3 { font-size: 13px; font-weight: 600; color: var(--text); margin: 14px 0 6px; }
+    .report-body p { font-size: 13px; color: var(--text-dim); margin-bottom: 10px; }
+    .report-body strong { color: var(--text); font-weight: 600; }
+    .report-body em { color: var(--text-dim); }
+    .report-body ul, .report-body ol { padding-left: 20px; margin-bottom: 10px; }
+    .report-body li { font-size: 13px; color: var(--text-dim); margin-bottom: 4px; }
+    .report-body table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 12px; }
+    .report-body th {
+      background: var(--surface);
+      padding: 8px 12px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+    }
+    .report-body td { padding: 7px 12px; border: 1px solid var(--border); color: var(--text-dim); }
+    .report-body tr:hover td { background: var(--surface); }
+    .report-body code {
+      background: var(--surface);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--cyan);
+    }
+    .report-body pre {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      margin-bottom: 12px;
+    }
+    .report-body pre code {
+      background: none;
+      padding: 0;
+      color: var(--green);
+      font-size: 12px;
+    }
+    .report-body blockquote {
+      border-left: 3px solid var(--green-dim);
+      padding-left: 14px;
+      margin: 10px 0;
+      color: var(--text-dim);
+      font-style: italic;
+    }
+    .report-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    /* Chat */
+    .chat-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 40px;
+    }
+    .chat-selector {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .chat-persona-btn {
+      padding: 5px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border2);
+      background: transparent;
+      color: var(--text-dim);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .chat-persona-btn:hover, .chat-persona-btn.selected {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      background: #0a203033;
+    }
+    .chat-messages {
+      padding: 16px;
+      min-height: 120px;
+      max-height: 300px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .chat-msg {
+      display: flex;
+      gap: 10px;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    .chat-msg.user { flex-direction: row-reverse; }
+    .chat-bubble {
+      max-width: 75%;
+      padding: 9px 13px;
+      border-radius: 10px;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .chat-msg.user .chat-bubble {
+      background: var(--green-dim);
+      color: var(--green);
+      border: 1px solid #1a6b4a;
+    }
+    .chat-msg.ai .chat-bubble {
+      background: var(--surface2);
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+    }
+    .chat-avatar {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .chat-input-row {
+      display: flex;
+      padding: 12px 16px;
+      gap: 8px;
+      border-top: 1px solid var(--border);
+    }
+    .chat-input {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      padding: 8px 12px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .chat-input:focus { border-color: var(--cyan); }
+    .chat-send {
+      padding: 8px 14px;
+      background: var(--cyan-dim);
+      border: 1px solid var(--cyan);
+      border-radius: 8px;
+      color: var(--cyan);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .chat-send:hover { background: #1a5a7f; }
+    .chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Loading states */
+    .thinking-dots::after {
+      content: '...';
+      animation: dots 1.2s steps(4, end) infinite;
+    }
+    @keyframes dots {
+      0%, 20% { content: '.'; }
+      40% { content: '..'; }
+      60%, 100% { content: '...'; }
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+    .empty-state .empty-icon { font-size: 36px; margin-bottom: 14px; opacity: 0.4; }
+    .empty-state p { font-size: 13px; }
+
+    /* Notification toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      z-index: 1000;
+      transform: translateY(80px);
+      transition: transform 0.3s ease;
+      max-width: 320px;
+      pointer-events: none;
+    }
+    .toast.visible { transform: translateY(0); }
+    .toast.success { background: #0d2b1d; border: 1px solid var(--green-dim); color: var(--green); }
+    .toast.error { background: #1a0707; border: 1px solid #4a1010; color: var(--red); }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3a3f50; }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .main-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .personas-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="header-inner">
+        <div class="logo-mark">L</div>
+        <div class="header-text">
+          <h1>Audience Intelligence Simulator</h1>
+          <p>Lumos · MiroFish-inspired swarm engine · DOOH campaign intelligence</p>
+        </div>
+        <span class="mode-badge mock" id="modeBadge">⬤ loading...</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="main-grid">
+      <!-- Left: Campaign Brief Form -->
+      <div>
+        <div class="panel">
+          <div class="panel-header">
+            <div class="icon green">📋</div>
+            <h2>Campaign Brief</h2>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label>Brand Name</label>
+              <input type="text" id="brandName" placeholder="e.g. Koala Mattresses" value="Koala Mattresses" />
+            </div>
+            <div class="form-group">
+              <label>Campaign Message</label>
+              <textarea id="campaignMessage" rows="2" placeholder="The core OOH headline / message">Better sleep starts tonight. Try Koala free for 120 nights.</textarea>
+            </div>
+            <div class="form-group">
+              <label>Target Audience</label>
+              <input type="text" id="targetAudience" placeholder="e.g. Urban professionals 25-45" value="Urban professionals 25–45, health-conscious, recently moved or redecorating" />
+            </div>
+            <div class="form-group">
+              <label>OOH Location / Context</label>
+              <input type="text" id="oohLocation" placeholder="e.g. Sydney CBD digital billboards" value="Sydney CBD digital billboards + Town Hall Station concourse" />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Duration</label>
+                <input type="text" id="campaignDuration" placeholder="e.g. 4 weeks" value="4 weeks" />
+              </div>
+              <div class="form-group">
+                <label>Budget (AUD)</label>
+                <input type="number" id="budgetAud" placeholder="50000" value="75000" />
+              </div>
+            </div>
+            <button class="btn-run" id="runBtn" onclick="runSimulation()">
+              ⚡ Run Simulation
+            </button>
+          </div>
+        </div>
+
+        <!-- Progress Panel -->
+        <div class="panel" style="margin-top: 16px;" id="progressPanel">
+          <div class="panel-header">
+            <div class="icon cyan">🔄</div>
+            <h2>Simulation Progress</h2>
+          </div>
+          <div class="panel-body">
+            <ul class="progress-steps" id="progressSteps">
+              <li id="step-personas">
+                <div class="step-icon">1</div>
+                <div>
+                  <div style="font-size:13px;font-weight:500;">Persona Generation</div>
+                  <div style="font-size:11px;color:var(--text-muted);">Building 10 synthetic consumer profiles</div>
+                </div>
+              </li>
+              <li id="step-exposure">
+                <div class="step-icon">2</div>
+                <div>
+                  <div style="font-size:13px;font-weight:500;">Exposure Simulation</div>
+                  <div style="font-size:11px;color:var(--text-muted);">Per-persona OOH ad reaction modelling</div>
+                </div>
+              </li>
+              <li id="step-cascade">
+                <div class="step-icon">3</div>
+                <div>
+                  <div style="font-size:13px;font-weight:500;">Social Cascade</div>
+                  <div style="font-size:11px;color:var(--text-muted);">Peer influence propagation simulation</div>
+                </div>
+              </li>
+              <li id="step-report">
+                <div class="step-icon">4</div>
+                <div>
+                  <div style="font-size:13px;font-weight:500;">Report Synthesis</div>
+                  <div style="font-size:11px;color:var(--text-muted);">Aggregating intelligence into predictions</div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Results -->
+      <div>
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">🧠</div>
+          <p style="font-size:15px;font-weight:600;color:var(--text-dim);margin-bottom:8px;">Your simulation results will appear here</p>
+          <p>Fill in the campaign brief and click <strong>Run Simulation</strong> to generate<br/>audience intelligence for your DOOH campaign.</p>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results">
+          <!-- Stats Cards -->
+          <div class="stats-grid">
+            <div class="stat-card green">
+              <div class="stat-label">Brand Recall</div>
+              <div class="stat-value" id="statRecall">—</div>
+              <div class="stat-sub">Noticed the ad</div>
+            </div>
+            <div class="stat-card cyan">
+              <div class="stat-label">Purchase Intent</div>
+              <div class="stat-value" id="statIntent">—</div>
+              <div class="stat-sub">Positive response</div>
+            </div>
+            <div class="stat-card amber">
+              <div class="stat-label">Est. Reach</div>
+              <div class="stat-value" id="statReach">—</div>
+              <div class="stat-sub">Weekly impressions</div>
+            </div>
+            <div class="stat-card red">
+              <div class="stat-label">Predicted ROAS</div>
+              <div class="stat-value" id="statRoas">—</div>
+              <div class="stat-sub">Return on ad spend</div>
+            </div>
+          </div>
+
+          <!-- Personas -->
+          <div class="section-title">Persona Reactions</div>
+          <div class="personas-grid" id="personasGrid"></div>
+
+          <!-- Social Cascade -->
+          <div class="section-title">Social Influence Cascade</div>
+          <div class="cascade-list" id="cascadeList"></div>
+
+          <!-- Full Report -->
+          <div class="section-title">Prediction Report</div>
+          <div class="report-body" id="reportBody"></div>
+
+          <!-- Chat Section -->
+          <div class="section-title">Chat with the Simulation</div>
+          <div class="chat-panel">
+            <div class="chat-selector" id="chatSelector">
+              <button class="chat-persona-btn selected" data-id="" onclick="selectChatPersona(this, '')">🧠 Lumos Engine</button>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+              <div style="text-align:center;color:var(--text-muted);font-size:12px;padding:20px 0;">
+                Ask the simulation anything — or chat directly with any persona
+              </div>
+            </div>
+            <div class="chat-input-row">
+              <input class="chat-input" id="chatInput" type="text" placeholder="Ask a question about the simulation..." onkeydown="if(event.key==='Enter')sendChat()" />
+              <button class="chat-send" id="chatSendBtn" onclick="sendChat()">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    let currentSimId = null;
+    let selectedPersonaId = '';
+    let currentPersonas = [];
+
+    const CHANNEL_ICONS = { conversation: '💬', instagram: '📸', whatsapp: '💚' };
+    const AVATAR_EMOJIS = ['👩','👨','🧑','👩🏽','👨🏾','🧑🏻','👩🏿','👨🏻','🧑🏽','👩🏾'];
+
+    // ─── Health check on load ─────────────────────────────────────────────
+    async function checkHealth() {
+      try {
+        const res = await fetch('/api/health');
+        const data = await res.json();
+        const badge = document.getElementById('modeBadge');
+        if (data.mode === 'mock') {
+          badge.textContent = '⬤ demo mode';
+          badge.className = 'mode-badge mock';
+          badge.title = 'Running with mock data — add ANTHROPIC_API_KEY to .env for live AI';
+        } else {
+          badge.textContent = `⬤ ${data.mode} / ${data.model}`;
+          badge.className = 'mode-badge live';
+        }
+      } catch (e) {
+        document.getElementById('modeBadge').textContent = '⬤ offline';
+      }
+    }
+
+    // ─── Progress helpers ─────────────────────────────────────────────────
+    function setStep(stepId, state) {
+      const el = document.getElementById(stepId);
+      if (!el) return;
+      el.className = state;
+      const icon = el.querySelector('.step-icon');
+      if (state === 'active') icon.innerHTML = '<span class="spinner">◌</span>';
+      else if (state === 'done') icon.innerHTML = '✓';
+    }
+
+    // ─── Run Simulation ───────────────────────────────────────────────────
+    async function runSimulation() {
+      const brief = {
+        brand_name: document.getElementById('brandName').value.trim(),
+        campaign_message: document.getElementById('campaignMessage').value.trim(),
+        target_audience: document.getElementById('targetAudience').value.trim(),
+        ooh_location: document.getElementById('oohLocation').value.trim(),
+        campaign_duration: document.getElementById('campaignDuration').value.trim(),
+        budget_aud: parseFloat(document.getElementById('budgetAud').value) || 50000,
+      };
+
+      if (!brief.brand_name || !brief.campaign_message) {
+        showToast('Please fill in Brand Name and Campaign Message', 'error');
+        return;
+      }
+
+      const runBtn = document.getElementById('runBtn');
+      runBtn.disabled = true;
+      runBtn.textContent = '⏳ Simulating...';
+
+      document.getElementById('emptyState').style.display = 'none';
+      document.getElementById('results').classList.remove('visible');
+      document.getElementById('progressPanel').style.display = 'block';
+
+      ['step-personas', 'step-exposure', 'step-cascade', 'step-report'].forEach(s => setStep(s, ''));
+
+      // Animate progress steps
+      const steps = [
+        { id: 'step-personas', delay: 200, duration: 1200 },
+        { id: 'step-exposure', delay: 1400, duration: 1800 },
+        { id: 'step-cascade', delay: 3200, duration: 900 },
+        { id: 'step-report', delay: 4100, duration: 1400 },
+      ];
+
+      steps.forEach(({ id, delay }) => {
+        setTimeout(() => setStep(id, 'active'), delay);
+      });
+
+      // Kick off the fetch simultaneously with progress animation
+      let simData;
+      try {
+        const res = await fetch('/api/simulate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(brief),
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.detail || 'Simulation failed');
+        }
+        simData = await res.json();
+      } catch (e) {
+        showToast('Simulation error: ' + e.message, 'error');
+        runBtn.disabled = false;
+        runBtn.textContent = '⚡ Run Simulation';
+        document.getElementById('progressPanel').style.display = 'none';
+        document.getElementById('emptyState').style.display = '';
+        return;
+      }
+
+      // Complete all steps visually before rendering
+      const totalAnimTime = 5600;
+      const elapsed = Date.now();
+      await new Promise(r => setTimeout(r, Math.max(0, totalAnimTime - (Date.now() - elapsed))));
+
+      steps.forEach(({ id }) => setStep(id, 'done'));
+      await new Promise(r => setTimeout(r, 400));
+
+      renderResults(simData);
+
+      runBtn.disabled = false;
+      runBtn.textContent = '⚡ Run Simulation';
+      document.getElementById('progressPanel').style.display = 'none';
+      showToast(`Simulation complete — ${simData.personas.length} personas, ${simData.social_cascade.length} social interactions`, 'success');
+    }
+
+    // ─── Render Results ───────────────────────────────────────────────────
+    function renderResults(data) {
+      currentSimId = data.simulation_id;
+      currentPersonas = data.personas;
+
+      const stats = data.stats;
+      document.getElementById('statRecall').textContent = stats.recall_pct + '%';
+      document.getElementById('statIntent').textContent = stats.intent_pct + '%';
+      document.getElementById('statReach').textContent = formatNum(stats.reach_estimate);
+      document.getElementById('statRoas').textContent = stats.roas_prediction + 'x';
+
+      renderPersonas(data.personas, data.exposures);
+      renderCascade(data.social_cascade);
+      renderReport(data.report);
+      setupChat(data.personas);
+
+      document.getElementById('results').classList.add('visible');
+
+      // Scroll to results
+      setTimeout(() => {
+        document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+
+    function renderPersonas(personas, exposures) {
+      const grid = document.getElementById('personasGrid');
+      grid.innerHTML = '';
+
+      personas.forEach((p, i) => {
+        const exp = exposures.find(e => e.persona_id === p.id) || {};
+        const recallPct = ((exp.recall_strength || 1) / 5) * 100;
+        const emoji = AVATAR_EMOJIS[i % AVATAR_EMOJIS.length];
+        const responseClass = exp.emotional_response || 'neutral';
+
+        grid.innerHTML += `
+          <div class="persona-card" onclick="selectPersonaCard('${p.id}')">
+            <div class="persona-header">
+              <div class="persona-avatar">${emoji}</div>
+              <div>
+                <div class="persona-name">${p.name}</div>
+                <div class="persona-meta">${p.age} · ${p.occupation} · ${p.suburb}</div>
+              </div>
+            </div>
+            <div class="persona-badges">
+              <span class="badge ${exp.noticed ? 'noticed' : 'missed'}">${exp.noticed ? '👁 Noticed' : '🙈 Missed'}</span>
+              <span class="badge ${responseClass}">${{ positive: '✨ Positive', neutral: '😐 Neutral', negative: '😒 Negative' }[responseClass] || responseClass}</span>
+            </div>
+            <div class="recall-bar">
+              <div class="recall-label">Recall strength: ${exp.recall_strength || 1}/5</div>
+              <div class="recall-track"><div class="recall-fill" style="width:${recallPct}%"></div></div>
+            </div>
+            <div class="persona-quote">${exp.quote || '"No strong impression."'}</div>
+            <div class="skepticism-pip">Ad skepticism: ${'■'.repeat(p.ad_skepticism)}${'□'.repeat(10 - p.ad_skepticism)} ${p.ad_skepticism}/10</div>
+          </div>`;
+      });
+    }
+
+    function renderCascade(cascade) {
+      const list = document.getElementById('cascadeList');
+      list.innerHTML = '';
+
+      if (!cascade || cascade.length === 0) {
+        list.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:12px 0;">No social interactions generated.</div>';
+        return;
+      }
+
+      cascade.forEach(c => {
+        const icon = CHANNEL_ICONS[c.channel] || '💬';
+        const channelLabel = { conversation: 'In person', instagram: 'Instagram', whatsapp: 'WhatsApp' }[c.channel] || c.channel;
+
+        list.innerHTML += `
+          <div class="cascade-item">
+            <div class="channel-icon ${c.channel}">${icon}</div>
+            <div style="flex:1">
+              <div class="cascade-meta">
+                <strong>${c.from_persona}</strong> → <strong>${c.to_persona}</strong>
+                <span style="color:var(--text-muted)"> via ${channelLabel}</span>
+              </div>
+              <div class="cascade-message">"${c.message}"</div>
+            </div>
+            <div class="influence-chip">+${Math.round((c.influence_delta || 0.2) * 100)}%</div>
+          </div>`;
+      });
+    }
+
+    function renderReport(markdown) {
+      const body = document.getElementById('reportBody');
+      body.innerHTML = marked.parse(markdown || '_No report generated._');
+    }
+
+    function setupChat(personas) {
+      const selector = document.getElementById('chatSelector');
+      selector.innerHTML = '<button class="chat-persona-btn selected" data-id="" onclick="selectChatPersona(this, \'\')">🧠 Lumos Engine</button>';
+
+      personas.forEach((p, i) => {
+        const emoji = AVATAR_EMOJIS[i % AVATAR_EMOJIS.length];
+        selector.innerHTML += `<button class="chat-persona-btn" data-id="${p.id}" onclick="selectChatPersona(this, '${p.id}')">${emoji} ${p.name.split(' ')[0]}</button>`;
+      });
+
+      document.getElementById('chatMessages').innerHTML = `
+        <div style="text-align:center;color:var(--text-muted);font-size:12px;padding:8px 0;">
+          Ask the simulation anything — select a persona to chat directly with them
+        </div>`;
+    }
+
+    function selectChatPersona(btn, personaId) {
+      selectedPersonaId = personaId;
+      document.querySelectorAll('.chat-persona-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    }
+
+    function selectPersonaCard(id) {
+      // Highlight persona card + auto-select in chat
+      document.querySelectorAll('.persona-card').forEach(c => c.classList.remove('selected'));
+      event.currentTarget.classList.add('selected');
+
+      const btn = document.querySelector(`.chat-persona-btn[data-id="${id}"]`);
+      if (btn) {
+        document.querySelectorAll('.chat-persona-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedPersonaId = id;
+        document.getElementById('chatInput').focus();
+      }
+    }
+
+    // ─── Chat ─────────────────────────────────────────────────────────────
+    async function sendChat() {
+      if (!currentSimId) return;
+      const input = document.getElementById('chatInput');
+      const question = input.value.trim();
+      if (!question) return;
+
+      input.value = '';
+      const sendBtn = document.getElementById('chatSendBtn');
+      sendBtn.disabled = true;
+
+      const messages = document.getElementById('chatMessages');
+      messages.innerHTML += `
+        <div class="chat-msg user">
+          <div class="chat-avatar">👤</div>
+          <div class="chat-bubble">${escapeHtml(question)}</div>
+        </div>`;
+
+      const thinkId = 'think_' + Date.now();
+      const personaName = selectedPersonaId
+        ? (currentPersonas.find(p => p.id === selectedPersonaId)?.name?.split(' ')[0] || 'Persona')
+        : '🧠';
+
+      messages.innerHTML += `
+        <div class="chat-msg ai" id="${thinkId}">
+          <div class="chat-avatar">${selectedPersonaId ? AVATAR_EMOJIS[currentPersonas.findIndex(p=>p.id===selectedPersonaId) % 10] : '🧠'}</div>
+          <div class="chat-bubble thinking-dots" style="color:var(--text-muted);font-style:italic">${personaName} is thinking</div>
+        </div>`;
+      messages.scrollTop = messages.scrollHeight;
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            simulation_id: currentSimId,
+            question,
+            persona_id: selectedPersonaId || null,
+          }),
+        });
+        const data = await res.json();
+
+        const el = document.getElementById(thinkId);
+        if (el) {
+          el.querySelector('.chat-bubble').className = 'chat-bubble';
+          el.querySelector('.chat-bubble').textContent = data.answer;
+        }
+      } catch (e) {
+        const el = document.getElementById(thinkId);
+        if (el) el.remove();
+        showToast('Chat error: ' + e.message, 'error');
+      }
+
+      sendBtn.disabled = false;
+      messages.scrollTop = messages.scrollHeight;
+      input.focus();
+    }
+
+    // ─── Helpers ──────────────────────────────────────────────────────────
+    function formatNum(n) {
+      if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+      if (n >= 1000) return (n / 1000).toFixed(0) + 'K';
+      return n.toString();
+    }
+
+    function escapeHtml(s) {
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function showToast(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = `toast ${type} visible`;
+      setTimeout(() => t.classList.remove('visible'), 3500);
+    }
+
+    // ─── Init ─────────────────────────────────────────────────────────────
+    checkHealth();
+    document.getElementById('progressPanel').style.display = 'none';
+
+    // Allow enter in chat input
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('chatInput')?.addEventListener('keydown', e => {
+        if (e.key === 'Enter') sendChat();
+      });
+    });
+  </script>
+</body>
+</html>
