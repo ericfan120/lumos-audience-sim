@@ -381,8 +381,8 @@ html, body {
 /* TAB CONTENT */
 #tab-content {
   display: none;
-  flex: 0 0 auto;
-  max-height: 62%;
+  flex: 0 0 50vh;
+  height: 50vh;
   overflow-y: auto;
   background: var(--surface);
   border-top: 1px solid var(--border);
@@ -396,7 +396,7 @@ html, body {
   display: block;
 }
 
-.tab-pane { display: none; padding: 16px; }
+.tab-pane { display: none; padding: 16px; min-height: 0; }
 .tab-pane.active { display: block; }
 
 /* RESULTS TAB */
@@ -916,7 +916,7 @@ html, body {
         <form id="brief-form" onsubmit="return false;">
           <div class="form-group">
             <label class="form-label" for="f-brand">Brand Name</label>
-            <input class="form-input" id="f-brand" type="text" value="Koala Mattresses" oninput="onInputChange()">
+            <input class="form-input" id="f-brand" type="text" value="Koala Mattresses" oninput="onInputChange(); onLocationChange()">
           </div>
           <div class="form-group">
             <label class="form-label" for="f-objective">Campaign Objective</label>
@@ -937,7 +937,7 @@ html, body {
           </div>
           <div class="form-group">
             <label class="form-label" for="f-location">Media Placement / Location</label>
-            <input class="form-input" id="f-location" type="text" value="Sydney CBD — outdoor, transit, digital + social retargeting" oninput="onInputChange()">
+            <input class="form-input" id="f-location" type="text" value="Sydney CBD — outdoor, transit, digital + social retargeting" oninput="onInputChange(); onLocationChange()">
           </div>
           <div class="form-row">
             <div class="form-group">
@@ -985,6 +985,7 @@ html, body {
       <!-- RESULT TABS -->
       <div id="result-tabs">
         <nav class="tab-nav">
+          <button class="tab-btn" data-tab="targets" onclick="switchTab('targets')">🎯 Targets</button>
           <button class="tab-btn active" data-tab="map" onclick="switchTab('map')">Mind Map</button>
           <button class="tab-btn" data-tab="results" onclick="switchTab('results')">Results</button>
           <button class="tab-btn" data-tab="report" onclick="switchTab('report')">Report</button>
@@ -995,6 +996,36 @@ html, body {
 
       <!-- GRAPH PANEL -->
       <div id="graph-panel">
+        <div id="world-context-panel" style="
+          position:absolute;
+          left:12px;
+          top:12px;
+          bottom:12px;
+          width:220px;
+          background:rgba(255,255,255,0.92);
+          border:1px solid rgba(26,10,46,0.1);
+          border-radius:12px;
+          padding:14px;
+          backdrop-filter:blur(12px);
+          overflow-y:auto;
+          z-index:10;
+          display:flex;
+          flex-direction:column;
+          gap:8px;
+          scrollbar-width:thin;
+          scrollbar-color:rgba(26,10,46,0.1) transparent;
+        ">
+          <div style="font-family:AT-Realm-Bold;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#7c3aed;margin-bottom:4px;display:flex;align-items:center;gap:6px">
+            <span>🌐</span> World Context
+          </div>
+          <div id="world-loading" style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.4);text-align:center;padding:20px 0">
+            Fetching signals...
+          </div>
+          <div id="world-signals" style="display:flex;flex-direction:column;gap:6px"></div>
+          <div id="world-footer" style="display:none;font-family:GT-Planar;font-size:9px;color:rgba(26,10,46,0.3);text-align:center;margin-top:4px;padding-top:8px;border-top:1px solid rgba(26,10,46,0.06)">
+            Signals factored into simulation
+          </div>
+        </div>
         <svg id="graph-svg"></svg>
         <div id="graph-idle">
           <div id="idle-icon">🧠</div>
@@ -1009,6 +1040,10 @@ html, body {
           <div class="legend-row"><div class="legend-line" style="background:#f59e0b;"></div><span>Recall medium</span></div>
           <div class="legend-row"><div class="legend-line" style="background:#374151;"></div><span>Recall weak</span></div>
           <div class="legend-row"><div class="legend-dash" style="border-color:#06b6d4;"></div><span>Cascade</span></div>
+          <div style="height:5px;"></div>
+          <div class="legend-row"><div class="legend-dot" style="background:#fef3c7;border:2px solid #f59e0b;width:12px;height:12px;border-radius:50%"></div><span>Super Connector</span></div>
+          <div class="legend-row"><div class="legend-dash" style="border-color:#f59e0b;opacity:0.6"></div><span>Word of Mouth</span></div>
+          <div class="legend-row"><div class="legend-dot" style="background:#fff7ed;border:1px solid #f59e0b;width:10px;height:10px;border-radius:50%;opacity:0.7"></div><span>WOM-only reach</span></div>
         </div>
       </div>
 
@@ -1018,6 +1053,15 @@ html, body {
         <div class="tab-pane" id="pane-map"></div>
 
         <!-- RESULTS tab -->
+        <!-- TARGETS tab -->
+        <div class="tab-pane" id="pane-targets" style="padding:0;">
+          <div style="padding:16px 20px 8px;border-bottom:1px solid rgba(26,10,46,0.07)">
+            <h2 style="font-family:AT-Realm-Bold;color:#7c3aed;font-size:17px;margin:0 0 3px">Primary Audience Targets</h2>
+            <p style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.45);margin:0">Ranked by Cascade Power Score — who to reach first for maximum ROAS</p>
+          </div>
+          <div id="targets-list" style="padding:12px 16px;display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+
         <div class="tab-pane" id="pane-results">
           <div class="stats-grid" id="stats-grid"></div>
           <div class="section-label">Consumer Personas</div>
@@ -1027,12 +1071,12 @@ html, body {
         </div>
 
         <!-- REPORT tab -->
-        <div class="tab-pane" id="pane-report" style="overflow-y:auto;max-height:58vh;padding:20px 24px;">
+        <div class="tab-pane" id="pane-report" style="padding:20px 24px;">
           <div id="report-content"></div>
         </div>
 
         <!-- CHANNEL MIX tab -->
-        <div class="tab-pane" id="tab-channel" style="padding:0;overflow-y:auto;max-height:58vh;"></div>
+        <div class="tab-pane" id="tab-channel" style="padding:0;"></div>
 
         <!-- CHAT tab -->
         <div class="tab-pane" id="pane-chat">
@@ -1103,10 +1147,18 @@ const EDGE_COLORS = {
   exposure_strong: '#22c55e',
   exposure_medium: '#f59e0b',
   exposure_weak:   '#374151',
-  cascade_conversation: '#06b6d4',
-  cascade_instagram:    '#f59e0b',
-  cascade_whatsapp:     '#22c55e',
-  cascade_tiktok:       '#ec4899'
+  cascade_conversation:    '#06b6d4',
+  cascade_instagram:       '#f59e0b',
+  cascade_instagram_dm:    '#f59e0b',
+  cascade_instagram_story: '#ec4899',
+  cascade_whatsapp:        '#22c55e',
+  cascade_whatsapp_group:  '#22c55e',
+  cascade_tiktok:          '#ec4899',
+  cascade_tiktok_comment:  '#ec4899',
+  cascade_linkedin:        '#0a66c2',
+  cascade_text_message:    '#8b5cf6',
+  cascade_in_person:       '#06b6d4',
+  cascade_facebook_group:  '#1877f2'
 }
 const SYSTEM_PROMPT = `You are a media strategy simulation engine for Lumos, Australia's leading omni-channel media intelligence platform.
 Simulate realistic Australian consumer responses to integrated media campaigns across all channels — outdoor, digital, social, TV, search, and radio.
@@ -1130,7 +1182,7 @@ function initGraph() {
   simulation = d3.forceSimulation([])
     .force('link', d3.forceLink([]).id(d => d.id).distance(120).strength(0.7))
     .force('charge', d3.forceManyBody().strength(-400))
-    .force('center', d3.forceCenter(width/2, height/2))
+    .force('center', d3.forceCenter((width - 230) / 2 + 230, height/2))
     .force('collide', d3.forceCollide(35))
     .on('tick', ticked)
   document.getElementById('graph-idle').classList.add('hidden')
@@ -1144,6 +1196,7 @@ function ticked() {
   svgG.selectAll('.node').attr('cx', d => d.x).attr('cy', d => d.y)
   svgG.selectAll('.node-label').attr('x', d => d.x).attr('y', d => d.y + (NODE_STYLES[d.type]?.r || 11) + 12)
   svgG.selectAll('.node-img').attr('x', d=>d.x-(NODE_STYLES.persona.r-1)).attr('y', d=>d.y-(NODE_STYLES.persona.r-1))
+  svgG.selectAll('.node-glow').attr('cx', d=>d.x).attr('cy', d=>d.y)
 }
 
 function updateGraph() {
@@ -1161,7 +1214,7 @@ function updateGraph() {
   edgeSel.enter().append('line').attr('class', 'edge')
     .attr('stroke', d => d.color)
     .attr('stroke-width', d => Math.max(0.5, d.width || 1))
-    .attr('stroke-dasharray', d => d.dashed ? '5,4' : null)
+    .attr('stroke-dasharray', d => d.dashPattern || (d.dashed ? '5,4' : null))
     .attr('opacity', 0).transition().duration(400).attr('opacity', 0.8)
   edgeSel.exit().remove()
 
@@ -1169,9 +1222,6 @@ function updateGraph() {
   const nodeSel = svgG.selectAll('.node').data(nodes, d => d.id)
   const nodeEnter = nodeSel.enter().append('circle').attr('class', d => 'node node-' + d.type)
     .attr('r', 0)
-    .attr('fill', d => NODE_STYLES[d.type].fill)
-    .attr('stroke', d => NODE_STYLES[d.type].stroke)
-    .attr('stroke-width', d => NODE_STYLES[d.type].strokeWidth)
     .attr('cursor', 'pointer')
     .call(d3.drag()
       .on('start', dragStart)
@@ -1180,8 +1230,43 @@ function updateGraph() {
     .on('mouseenter', showTooltip)
     .on('mouseleave', hideTooltip)
     .on('click', onNodeClick)
-  nodeEnter.transition().duration(400).attr('r', d => NODE_STYLES[d.type].r)
+  // Apply dynamic styles on enter + update (handles WOMOnly/SuperConnector re-renders)
+  nodeEnter.merge(nodeSel)
+    .attr('fill', d => {
+      if (d.type === 'persona') {
+        if (d.isSuperConnector) return '#fef3c7'
+        if (d.isWOMOnly) return '#fff7ed'
+        return NODE_STYLES.persona.fill
+      }
+      return NODE_STYLES[d.type].fill
+    })
+    .attr('stroke', d => {
+      if (d.type === 'persona') {
+        if (d.isSuperConnector || d.isWOMOnly) return '#f59e0b'
+        return NODE_STYLES.persona.stroke
+      }
+      return NODE_STYLES[d.type].stroke
+    })
+    .attr('stroke-width', d => {
+      if (d.type === 'persona') {
+        if (d.isSuperConnector) return 2.5
+        return NODE_STYLES.persona.strokeWidth
+      }
+      return NODE_STYLES[d.type].strokeWidth
+    })
+    .attr('opacity', d => d.isWOMOnly ? 0.7 : 1)
+  nodeEnter.transition().duration(400).attr('r', d => { if (d.type !== 'persona') return NODE_STYLES[d.type].r; const score = d.data?.cascadeScore || 30; return Math.max(8, Math.min(18, 8 + Math.round((score/100)*10))) })
   nodeSel.exit().transition().duration(200).attr('r', 0).remove()
+
+  // Glow rings for super connectors
+  const glowSel = svgG.selectAll('.node-glow').data(nodes.filter(n => n.type === 'persona' && n.isSuperConnector), d => d.id + '-glow')
+  glowSel.enter().append('circle').attr('class', 'node-glow')
+    .attr('r', 20).attr('fill', 'none')
+    .attr('stroke', '#f59e0b').attr('stroke-width', 1)
+    .attr('stroke-dasharray', '3,3').attr('opacity', 0.5)
+    .attr('pointer-events', 'none')
+    .lower()
+  glowSel.exit().remove()
 
   // labels
   const labelSel = svgG.selectAll('.node-label').data(nodes, d => d.id)
@@ -1225,8 +1310,24 @@ async function addCampaignNode(brief) {
   await sleep(300)
 }
 
+function combustionColor(pct) {
+  if (pct >= 70) return '#ef4444'
+  if (pct >= 45) return '#f59e0b'
+  return '#16a34a'
+}
+
+function isSuper(p) {
+  return (p.social_influence_score >= 8 || p.social_combustion_pct >= 72)
+}
+
 async function addPersonaNode(persona) {
-  nodes.push({ id: persona.id, type: 'persona', label: persona.name, data: persona })
+  nodes.push({
+    id: persona.id,
+    type: 'persona',
+    label: persona.name,
+    isSuperConnector: isSuper(persona),
+    data: persona
+  })
   updateGraph()
 }
 
@@ -1239,6 +1340,20 @@ function addExposureEdge(reaction, persona) {
 
 function addCascadeEdge(cascade, fromId, toId) {
   edges.push({ source: fromId, target: toId, type: 'cascade', color: EDGE_COLORS['cascade_' + cascade.channel] || '#666', width: (cascade.influence_delta || 0.5) * 3, dashed: false })
+  updateGraph()
+}
+
+function addWOMEdge(from, to) {
+  edges.push({
+    id: `wom_${from.id}_${to.id}`,
+    source: from.id,
+    target: to.id,
+    type: 'wom',
+    color: '#f59e0b',
+    width: 1.5,
+    dashed: true,
+    dashPattern: '4,6'
+  })
   updateGraph()
 }
 
@@ -1269,7 +1384,9 @@ function showTooltip(event, d) {
     html = `<strong>${d.label}</strong>Campaign node<br>Click to see brief`
   } else if (d.type === 'persona') {
     const p = d.data
-    html = `<strong>${p.name}</strong>${p.age} · ${p.occupation}<br>${p.suburb}`
+    const superBadge = isSuper(p) ? '<br><span style="color:#f59e0b;font-size:11px">⚡ Super Connector</span>' : ''
+    const womBadge = d.isWOMOnly ? '<br><span style="color:#f59e0b;font-size:11px;opacity:0.7">◎ WOM-only reach</span>' : ''
+    html = `<strong>${p.name}</strong>${p.age} · ${p.occupation}<br>${p.suburb}${superBadge}${womBadge}`
   } else if (d.type === 'kpi') {
     const k = d.data
     html = `<strong>${k.label || d.label.split('\n')[0]}</strong>${k.value || ''}`
@@ -1403,6 +1520,121 @@ function renderReport(md) {
   }
 }
 
+function renderCascadeItem(c, personas) {
+  const channelMeta = {
+    whatsapp_group:  { icon: '💚', label: 'WhatsApp Group',  color: '#22c55e', bg: 'rgba(34,197,94,0.1)',    border: 'rgba(34,197,94,0.2)' },
+    instagram_dm:    { icon: '📩', label: 'Instagram DM',    color: '#f59e0b', bg: 'rgba(245,158,11,0.1)',   border: 'rgba(245,158,11,0.2)' },
+    instagram_story: { icon: '📸', label: 'Instagram Story', color: '#ec4899', bg: 'rgba(236,72,153,0.1)',   border: 'rgba(236,72,153,0.2)' },
+    tiktok_comment:  { icon: '🎵', label: 'TikTok',          color: '#ec4899', bg: 'rgba(236,72,153,0.1)',   border: 'rgba(236,72,153,0.2)' },
+    linkedin:        { icon: '💼', label: 'LinkedIn',         color: '#0a66c2', bg: 'rgba(10,102,194,0.1)',   border: 'rgba(10,102,194,0.2)' },
+    text_message:    { icon: '💬', label: 'Text Message',     color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)',   border: 'rgba(139,92,246,0.2)' },
+    in_person:       { icon: '🗣', label: 'In Person',        color: '#06b6d4', bg: 'rgba(6,182,212,0.1)',    border: 'rgba(6,182,212,0.2)' },
+    facebook_group:  { icon: '👥', label: 'Facebook Group',  color: '#1877f2', bg: 'rgba(24,119,242,0.1)',   border: 'rgba(24,119,242,0.2)' },
+    conversation:    { icon: '💬', label: 'Conversation',     color: '#06b6d4', bg: 'rgba(6,182,212,0.1)',    border: 'rgba(6,182,212,0.2)' },
+    instagram:       { icon: '📸', label: 'Instagram',        color: '#f59e0b', bg: 'rgba(245,158,11,0.1)',   border: 'rgba(245,158,11,0.2)' },
+    whatsapp:        { icon: '💚', label: 'WhatsApp',         color: '#22c55e', bg: 'rgba(34,197,94,0.1)',    border: 'rgba(34,197,94,0.2)' },
+    tiktok:          { icon: '🎵', label: 'TikTok',           color: '#ec4899', bg: 'rgba(236,72,153,0.1)',   border: 'rgba(236,72,153,0.2)' }
+  }
+  const meta = channelMeta[c.channel] || { icon: '📡', label: c.channel || 'Social', color: '#9ca3af', bg: 'rgba(156,163,175,0.1)', border: 'rgba(156,163,175,0.2)' }
+  const fromP = (personas || []).find(p => p.name === c.from_name)
+  const toP = (personas || []).find(p => p.name === c.to_name)
+  const pct = Math.round((c.influence_delta || 0.5) * 100)
+  return `<div class="cascade-item">
+    <div class="cascade-header">
+      <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:0;overflow:hidden">
+        ${fromP?.photo ? `<img src="${fromP.photo}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:1.5px solid #7c3aed;flex-shrink:0">` : ''}
+        <span class="cascade-arrow" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.from_name}</span>
+        <span style="color:rgba(26,10,46,0.3);font-size:12px;flex-shrink:0">→</span>
+        ${toP?.photo ? `<img src="${toP.photo}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:1.5px solid rgba(26,10,46,0.15);flex-shrink:0">` : ''}
+        <span class="cascade-arrow" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.to_name}</span>
+      </div>
+      <span class="cascade-channel-name" style="color:${meta.color};background:${meta.bg};border-color:${meta.border};flex-shrink:0">${meta.icon} ${meta.label}</span>
+    </div>
+    ${c.context ? `<div style="font-family:GT-Planar;font-size:10px;color:rgba(26,10,46,0.4);margin-bottom:5px;font-style:italic">📍 ${c.context}</div>` : ''}
+    <p class="cascade-msg">${c.message || ''}</p>
+    <div class="influence-bar"><div style="width:${pct}%;background:linear-gradient(90deg,${meta.color},${meta.color}88)"></div></div>
+  </div>`
+}
+
+
+function cascadePower(p, reactions, womReach) {
+  const rx = reactions.find(r => r.persona_id === p.id)
+  const recallNorm = rx ? rx.recall_strength / 5 : 0.1
+  const influenceNorm = (p.social_influence_score || 5) / 10
+  const combustionNorm = (p.social_combustion_pct || 50) / 100
+  const womBonus = (womReach || []).filter(w => w.from === p.id).length * 0.15
+  return Math.round((recallNorm * 0.3 + influenceNorm * 0.35 + combustionNorm * 0.25 + womBonus) * 100)
+}
+
+function getChannelRecommendation(p) {
+  const age = p.age || 30
+  const combustion = p.social_combustion_pct || 50
+  const influence = p.social_influence_score || 5
+  let channels, reason, roas
+  const commute = (p.commute || '').toLowerCase()
+  const occ = (p.occupation || '').toLowerCase()
+  if (commute.includes('train') || commute.includes('bus') || commute.includes('transit')) {
+    channels = 'OOH/DOOH + Digital Retarget'
+    reason = 'Daily commuter — high transit OOH exposure + digital follow-up'
+    roas = (2.4 + combustion / 200).toFixed(1)
+  } else if (age < 28 && combustion >= 65) {
+    channels = 'TikTok + Instagram + OOH'
+    reason = 'Young high-combustion — social-first with OOH priming'
+    roas = (2.1 + influence / 20).toFixed(1)
+  } else if (age >= 50) {
+    channels = 'TV/CTV + OOH + Radio'
+    reason = 'Established audience — broadcast + outdoor reach dominant'
+    roas = (1.8 + influence / 25).toFixed(1)
+  } else if (occ.match(/manager|director|founder|ceo|head|executive|vp/)) {
+    channels = 'LinkedIn + Podcast + OOH CBD'
+    reason = 'Decision-maker commuter — professional media + premium OOH'
+    roas = (2.6 + combustion / 150).toFixed(1)
+  } else if (age < 35 && combustion >= 50) {
+    channels = 'Instagram + YouTube + OOH'
+    reason = 'Social-engaged millennial — visual platforms + outdoor priming'
+    roas = (2.2 + combustion / 180).toFixed(1)
+  } else {
+    channels = (p.primary_channel || 'OOH/DOOH') + ' + Social Retarget'
+    reason = 'Primary channel preference + social amplification layer'
+    roas = (2.0 + combustion / 200 + influence / 30).toFixed(1)
+  }
+  return { channels, reason, roas }
+}
+
+function renderAudienceTargets(ranking, reactions) {
+  const container = document.getElementById('targets-list')
+  if (!container || !ranking) return
+  const top10 = ranking.slice(0, 10)
+  container.innerHTML = top10.map((p, i) => {
+    const rx = reactions.find(r => r.persona_id === p.id)
+    const isTopTier = i < 3
+    const ch = getChannelRecommendation(p)
+    return `<div style="background:${isTopTier ? '#fffbeb' : '#fff'};border:1px solid ${isTopTier ? '#fcd34d' : 'rgba(26,10,46,0.08)'};border-radius:10px;padding:14px;display:flex;gap:12px;align-items:flex-start">
+      <div style="position:relative;flex-shrink:0">
+        <img src="${p.photo||''}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid ${isTopTier?'#f59e0b':'#7c3aed'}">
+        <div style="position:absolute;bottom:-4px;right:-4px;background:${isTopTier?'#f59e0b':'#7c3aed'};color:#fff;border-radius:10px;font-family:AT-Realm-Bold;font-size:9px;padding:1px 5px">#${i+1}</div>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px">
+          <span style="font-family:AT-Realm-Bold;font-size:13px;color:#1a0a2e">${p.name}</span>
+          <span style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.45)">${p.age} · ${p.occupation} · ${p.suburb}</span>
+        </div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">
+          <span style="background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.2);border-radius:20px;padding:2px 7px;font-size:10px;font-family:AT-Realm-Regular;color:#7c3aed">⚡ ${p.cascadeScore} cascade</span>
+          <span style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:20px;padding:2px 7px;font-size:10px;font-family:AT-Realm-Regular;color:#d97706">🔥 ${p.social_combustion_pct||50}% combustion</span>
+          <span style="background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2);border-radius:20px;padding:2px 7px;font-size:10px;font-family:AT-Realm-Regular;color:#16a34a">👁 recall ${rx?.recall_strength||1}/5</span>
+        </div>
+        <div style="background:rgba(26,10,46,0.03);border-radius:6px;padding:8px 10px">
+          <div style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(26,10,46,0.4);margin-bottom:3px">Best Channel to Reach</div>
+          <div style="font-family:AT-Realm-Bold;font-size:12px;color:#1a0a2e;margin-bottom:2px">${ch.channels}</div>
+          <div style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.5);margin-bottom:4px">${ch.reason}</div>
+          <div style="font-family:AT-Realm-Bold;font-size:12px;color:#16a34a">Predicted ROAS: ${ch.roas}×</div>
+        </div>
+      </div>
+    </div>`
+  }).join('')
+}
+
 function renderResults(personas, reactions, cascades, stats, report, brief) {
   // Stats cards
   const sg = document.getElementById('stats-grid')
@@ -1421,9 +1653,17 @@ function renderResults(personas, reactions, cascades, stats, report, brief) {
     </div>`
   })
 
+  // Compute cascade scores + build ranked list
+  window._cascadeRanking = personas.map(p => {
+    p.cascadeScore = cascadePower(p, reactions, window._simWOM || [])
+    return p
+  }).sort((a, b) => b.cascadeScore - a.cascadeScore)
+  renderAudienceTargets(window._cascadeRanking, reactions)
+
   // Persona cards
   const pg = document.getElementById('personas-grid')
   pg.innerHTML = ''
+
   const reactionMap = {}
   reactions.forEach(r => reactionMap[r.persona_id] = r)
   personas.forEach(p => {
@@ -1447,26 +1687,47 @@ function renderResults(personas, reactions, cascades, stats, report, brief) {
       </div>
       <div class="persona-quote">${r.quote ? '"' + r.quote.substring(0, 80) + (r.quote.length > 80 ? '...' : '') + '"' : ''}</div>
       <div class="skepticism-dots">${skepDots}</div>
+      <div class="combustion-row" style="display:flex;align-items:center;gap:8px;margin-top:8px">
+        <span style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(26,10,46,0.45)">Social Combustion</span>
+        <div style="flex:1;height:4px;background:rgba(26,10,46,0.08);border-radius:2px;overflow:hidden">
+          <div style="height:100%;width:${p.social_combustion_pct||50}%;background:${combustionColor(p.social_combustion_pct||50)};border-radius:2px;transition:width 0.5s"></div>
+        </div>
+        <span style="font-family:AT-Realm-Bold;font-size:11px;color:${combustionColor(p.social_combustion_pct||50)}">${p.social_combustion_pct||50}%</span>
+      </div>
     </div>`
   })
 
   // Cascade feed
   const cf = document.getElementById('cascade-feed')
   cf.innerHTML = ''
-  const channelEmoji = { conversation: '💬', instagram: '📸', whatsapp: '💚', tiktok: '🎵' }
-  cascades.forEach(c => {
-    const emoji = channelEmoji[c.channel] || '📡'
-    const pct = Math.round((c.influence_delta || 0.5) * 100)
-    cf.innerHTML += `<div class="cascade-item">
-      <div class="cascade-header">
-        <span class="cascade-channel">${emoji}</span>
-        <span class="cascade-arrow">${c.from_name} → ${c.to_name}</span>
-        <span class="cascade-channel-name ${c.channel}">${c.channel}</span>
+  cascades.forEach(c => { cf.innerHTML += renderCascadeItem(c, personas) })
+
+  // WOM super connector section
+  const existingWomDiv = document.getElementById('wom-section')
+  if (existingWomDiv) existingWomDiv.remove()
+  const superList = personas.filter(p => isSuper(p))
+  if (superList.length > 0) {
+    const womDiv = document.createElement('div')
+    womDiv.id = 'wom-section'
+    womDiv.style.cssText = 'margin-top:20px'
+    womDiv.innerHTML = `
+      <div class="section-label">⚡ Super Connectors (${superList.length})</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-top:10px">
+        ${superList.map(p => `
+          <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:12px;display:flex;gap:10px;align-items:center">
+            ${p.photo ? `<img src="${p.photo}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #f59e0b;flex-shrink:0">` : ''}
+            <div style="min-width:0">
+              <div style="font-family:AT-Realm-Bold;font-size:12px;color:#1a0a2e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
+              <div style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.occupation}</div>
+              <div style="font-family:AT-Realm-Bold;font-size:11px;color:#d97706;margin-top:2px">🔥 ${p.social_combustion_pct||70}% combustion</div>
+            </div>
+          </div>
+        `).join('')}
       </div>
-      <p class="cascade-msg">${c.message || ''}</p>
-      <div class="influence-bar"><div style="width:${pct}%"></div></div>
-    </div>`
-  })
+    `
+    const pgEl = document.getElementById('personas-grid')
+    if (pgEl) pgEl.insertAdjacentElement('afterend', womDiv)
+  }
 
   // Report rendered by renderReport()
 
@@ -1613,7 +1874,8 @@ function updateAllocTotal() {
 }
 
 // ===== PERSONA GENERATION (50 PERSONAS, 5 BATCHES) =====
-async function generateAllPersonas(brief) {
+async function generateAllPersonas(brief, sysPrompt) {
+  const _sys = sysPrompt || SYSTEM_PROMPT
   const all = []
   const segments = [
     'urban professionals and commuters using public transport',
@@ -1626,7 +1888,7 @@ async function generateAllPersonas(brief) {
     terminalLog(`Generating personas ${b*10+1}–${b*10+10} (${segments[b]})...`)
     updateStepProgress(1, Math.round((b/5)*100))
     const r = await callLLM([
-      { role:'system', content: SYSTEM_PROMPT },
+      { role:'system', content: _sys },
       { role:'user', content: `Generate 10 diverse Australian consumer personas for this segment: "${segments[b]}".
 Brand: ${brief.brand}. Message: "${brief.message}". Location: ${brief.location}.
 Return JSON: {"personas":[{"id":"p${b*10+1}","name":"...","age":28,"gender":"female","occupation":"...","suburb":"...","commute":"...","lifestyle_traits":["...","...","..."],"ad_skepticism":5,"social_influence_score":7,"primary_channel":"OOH/DOOH|Social|TV/CTV|Digital|Radio|Search","social_combustion_pct":65},...]}
@@ -1650,14 +1912,15 @@ IDs p${b*10+1} to p${b*10+10}. Vary ages 18-70, suburbs across AU cities.` }
 }
 
 // ===== EXPOSURE SIMULATION (5 BATCHES) =====
-async function simulateAllExposure(personas, brief) {
+async function simulateAllExposure(personas, brief, sysPrompt) {
+  const _sys = sysPrompt || SYSTEM_PROMPT
   const all = []
   for (let b = 0; b < 5; b++) {
     const batch = personas.slice(b*10, b*10+10)
     terminalLog(`Simulating exposure batch ${b+1}/5...`)
     updateStepProgress(2, Math.round((b/5)*100))
     const r = await callLLM([
-      { role:'system', content: SYSTEM_PROMPT },
+      { role:'system', content: _sys },
       { role:'user', content: `Simulate 10 personas encountering a media campaign at ${brief.location}.
 Brand: ${brief.brand}. Objective: ${brief.objective}. Message: "${brief.message}". Channel mix: OOH/DOOH, Social, Digital, Search, TV.
 Personas: ${JSON.stringify(batch.map(p=>({id:p.id,name:p.name,age:p.age,occupation:p.occupation,ad_skepticism:p.ad_skepticism,primary_channel:p.primary_channel})))}.
@@ -1903,29 +2166,78 @@ async function runSimulation() {
   simDone = false
 
   try {
+    // Build world context string for LLM
+    let worldContextStr = ''
+    if (worldContext) {
+      const m = worldContext.macro
+      const w = worldContext.weather
+      worldContextStr = `\n\n## WORLD CONTEXT (factored into simulation)\n`
+      if (w) worldContextStr += `- Weather: ${w.raw.tempC}°C, ${w.raw.desc}, feels like ${w.raw.feelsLike}°C\n`
+      if (m) {
+        worldContextStr += `- Season: ${m.season} — ${m.season_note}\n`
+        worldContextStr += `- RBA Rate: ${m.rba_rate} (${m.rba_trend}) — consumer spending ${m.rba_trend==='cutting'?'rising':m.rba_trend==='hiking'?'cautious':'stable'}\n`
+        worldContextStr += `- Consumer Confidence: ${m.consumer_confidence}/100 (${m.consumer_confidence_trend})\n`
+        worldContextStr += `- ASX200: ${m.asx_level} (${m.asx_change})\n`
+        worldContextStr += `- Unemployment: ${m.unemployment}\n`
+        if (m.cultural_events?.length) worldContextStr += `- Upcoming events: ${m.cultural_events.map(e=>e.name+' '+e.dates).join(', ')}\n`
+        if (m.trending_topics?.length) worldContextStr += `- Trending: ${m.trending_topics.join(', ')}\n`
+        worldContextStr += `- Ad spend: ${m.ad_spend_note}\n`
+      }
+      worldContextStr += `\nFactor all of the above into consumer behaviour predictions. Hot weather increases outdoor ad noticeability. Major events create high-traffic high-attention moments. Rising consumer confidence increases purchase intent. Low unemployment means more disposable income.`
+    }
+    const dynamicSystemPrompt = SYSTEM_PROMPT + worldContextStr
+
     // Step 1: personas (5 batches of 10)
     setStep(1,'active')
     terminalLog('Campaign brief loaded: ' + brief.brand)
     await addCampaignNode(brief)
-    const personas = await generateAllPersonas(brief)
+    const personas = await generateAllPersonas(brief, dynamicSystemPrompt)
     window._simPersonas = personas
     terminalLog(`✓ ${personas.length} personas generated`)
 
     // Step 2: exposure (5 batches)
     setStep(2,'active')
-    const reactions = await simulateAllExposure(personas, brief)
+    const reactions = await simulateAllExposure(personas, brief, dynamicSystemPrompt)
     window._simReactions = reactions
     terminalLog(`✓ ${reactions.length} exposure reactions simulated`)
 
     // Step 3: social cascade (15 interactions)
     setStep(3,'active')
     terminalLog('Modelling social cascade...')
+    const cascadePersonaCtx = personas.slice(0, 20).map(p => {
+      const rx = reactions.find(r => r.persona_id === p.id) || {}
+      return {
+        id: p.id, name: p.name, age: p.age, occupation: p.occupation,
+        suburb: p.suburb, lifestyle_traits: p.lifestyle_traits,
+        ad_skepticism: p.ad_skepticism, social_influence_score: p.social_influence_score,
+        social_combustion_pct: p.social_combustion_pct,
+        emotional_response: rx.emotional_response, recall_strength: rx.recall_strength, quote: rx.quote
+      }
+    })
     const r3 = await callLLM([
-      { role:'system', content: SYSTEM_PROMPT },
-      { role:'user', content: `Simulate 15 realistic social word-of-mouth interactions following campaign exposure.
-Sample reactions: ${JSON.stringify(reactions.slice(0,8).map(r=>({persona_id:r.persona_id,recall_strength:r.recall_strength,emotional_response:r.emotional_response})))}.
-Persona names: ${personas.slice(0,15).map(p=>p.name).join(', ')}.
-Return JSON: {"cascades":[{"from_name":"...","to_name":"...","channel":"conversation|instagram|whatsapp|tiktok","message":"...","influence_delta":0.7},...]} with exactly 15 entries.` }
+      { role:'system', content: dynamicSystemPrompt },
+      { role:'user', content: `You are simulating 15 authentic, fully in-character social word-of-mouth interactions between real Australian consumers who were exposed to this campaign:
+
+BRAND: ${brief.brand}
+MESSAGE: "${brief.message}"
+LOCATION: ${brief.location}
+OBJECTIVE: ${brief.objective || 'Brand Awareness'}
+
+PERSONA DATA (each person is a fully autonomous agent — use their actual traits, reactions, and life context):
+${JSON.stringify(cascadePersonaCtx)}
+
+RULES — each interaction must follow these principles:
+- 100% IN CHARACTER: write as this specific person using their actual job, suburb, age, lifestyle traits and personality
+- Reference the SPECIFIC brand ("${brief.brand}"), the actual campaign message, and the real location where they saw/heard it
+- Include authentic human behaviour: high ad_skepticism = doubt/sarcasm; high social_combustion_pct = enthusiastic sharing; FOMO, brand conflicts, personal relevance to their life situation
+- Feel like what this actual person would genuinely say to another specific person in a real moment — not generic ad talk
+- BAD: "Have you seen that ad? Looks cool." GOOD: "Was at ${brief.location} yesterday and saw the ${brief.brand} thing — actually made me stop. I've been putting this off for ages and the offer is genuinely hard to ignore for someone in my situation."
+- Add a context field: the specific platform situation (e.g. "WhatsApp group: Young Mums Surry Hills", "Instagram DM after seeing story", "LinkedIn comment on colleague's post", "Text to partner after gym session", "In person at Bondi coffee queue")
+- Vary channels: whatsapp_group, instagram_dm, instagram_story, tiktok_comment, linkedin, text_message, in_person, facebook_group
+- High social_combustion_pct personas should spread further and more enthusiastically; high ad_skepticism personas should express doubt or ask probing questions
+- Messages should be 2–4 sentences — real, specific, and human
+
+Return JSON: {"cascades":[{"from_name":"...","to_name":"...","channel":"whatsapp_group|instagram_dm|instagram_story|tiktok_comment|linkedin|text_message|in_person|facebook_group","context":"specific platform situation","message":"full authentic in-character message","influence_delta":0.7},...]} with exactly 15 entries.` }
     ])
     const cascades = r3.cascades || []
     window._simCascades = cascades
@@ -1937,17 +2249,45 @@ Return JSON: {"cascades":[{"from_name":"...","to_name":"...","channel":"conversa
     }
     setStep(3,'done')
 
+    // Step 3b: WOM reach
+    terminalLog('Identifying super connectors + WOM reach...')
+    const superConnectors = personas.filter(p => isSuper(p))
+    terminalLog(`✓ ${superConnectors.length} super connectors identified`)
+    const weakExposed = personas.filter(p => {
+      const rx = reactions.find(r => r.persona_id === p.id)
+      return !rx || rx.recall_strength <= 1
+    })
+    window._simWOM = []
+    for (const sc of superConnectors.slice(0, 5)) {
+      const targets = weakExposed.slice().sort(() => Math.random() - 0.5).slice(0, 3)
+      for (const target of targets) {
+        window._simWOM.push({ from: sc.id, to: target.id, channel: 'word_of_mouth' })
+        addWOMEdge(sc, target)
+        terminalLog(`[WOM] ${sc.name} → ${target.name}`)
+        await sleep(50)
+      }
+    }
+    terminalLog(`✓ WOM reach: ${window._simWOM.length} secondary exposures via ${superConnectors.length} super connectors`)
+    // Mark WOM-only nodes
+    window._simWOM.forEach(w => {
+      const n = nodes.find(x => x.id === w.to)
+      const rx = (window._simReactions || []).find(r => r.persona_id === w.to)
+      if (n && (!rx || rx.recall_strength <= 1)) n.isWOMOnly = true
+    })
+    updateGraph()
+
     // Step 4: report
     setStep(4,'active')
     terminalLog('Synthesising prediction report...')
     const rpt = await callLLM([
-      { role:'system', content: SYSTEM_PROMPT },
+      { role:'system', content: dynamicSystemPrompt },
       { role:'user', content: `Generate a comprehensive omni-channel media campaign prediction report.
 Brand: ${brief.brand}, Objective: ${brief.objective||"Awareness"}, Budget: AUD ${brief.budget}, Duration: ${brief.duration}, Location: ${brief.location}.
 Sample reactions (${reactions.length} total): ${JSON.stringify(reactions.slice(0,10))}.
 Cascades: ${JSON.stringify(cascades.slice(0,8))}.
+WOM reach: ${(window._simWOM||[]).length} secondary exposures via ${personas.filter(p=>isSuper(p)).length} super connectors.
 Return JSON: {"report":"## Executive Summary\n...full markdown...","recall_pct":74,"intent_pct":31,"weekly_reach":125000,"roas":2.4}
-Sections: Executive Summary, Audience Reach Analysis, Brand Recall Forecast (table by segment), Purchase Intent by Segment (table), Social Amplification, Omni-Channel ROAS Prediction (with AU benchmarks for OOH/Social/Search/TV/Digital/Radio), Budget Recommendations, Next Steps.` }
+Sections: Executive Summary, Audience Reach Analysis, Brand Recall Forecast (table by segment), Purchase Intent by Segment (table), Social Amplification, Word-of-Mouth Amplification (who are the super connectors, WOM reach multiplier, estimated secondary reach), Omni-Channel ROAS Prediction (with AU benchmarks for OOH/Social/Search/TV/Digital/Radio), Budget Recommendations, Next Steps.` }
     ])
     window._simStats = { recall_pct: rpt.recall_pct, intent_pct: rpt.intent_pct, weekly_reach: rpt.weekly_reach, roas: rpt.roas }
     window._simReport = rpt.report
@@ -2023,9 +2363,245 @@ document.getElementById('chat-input').addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat() }
 })
 
+// ===== WORLD CONTEXT =====
+let worldContext = null
+
+function getApiKey() { return localStorage.getItem('lumos_openai_key') }
+
+function renderSignalCard({ icon, label, value, sentiment, sub }) {
+  const sentimentColor = {
+    positive: '#16a34a',
+    negative: '#ef4444',
+    neutral: 'rgba(26,10,46,0.6)',
+    alert: '#f59e0b'
+  }[sentiment || 'neutral']
+  const sentimentBg = {
+    positive: 'rgba(22,163,74,0.06)',
+    negative: 'rgba(239,68,68,0.06)',
+    neutral: 'rgba(26,10,46,0.03)',
+    alert: 'rgba(245,158,11,0.08)'
+  }[sentiment || 'neutral']
+  return `<div style="background:${sentimentBg};border:1px solid ${sentimentColor}22;border-radius:8px;padding:10px 10px 8px">
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+      <span style="font-size:14px">${icon}</span>
+      <span style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(26,10,46,0.4)">${label}</span>
+    </div>
+    <div style="font-family:AT-Realm-Bold;font-size:13px;color:#1a0a2e;line-height:1.3">${value}</div>
+    ${sub ? `<div style="font-family:GT-Planar;font-size:10px;color:rgba(26,10,46,0.5);margin-top:3px;line-height:1.4">${sub}</div>` : ''}
+  </div>`
+}
+
+async function fetchWeather(location) {
+  const city = location.split(/[,\-\u2013+]/)[0].trim().replace(/[^a-zA-Z\s]/g,'').trim() || 'Sydney'
+  try {
+    const res = await fetch(`https://wttr.in/${encodeURIComponent(city)}?format=j1`)
+    const data = await res.json()
+    const cur = data.current_condition?.[0]
+    if (!cur) return null
+    const tempC = parseInt(cur.temp_C)
+    const desc = cur.weatherDesc?.[0]?.value || 'Clear'
+    const humidity = cur.humidity
+    const feelsLike = cur.FeelsLikeC
+    const sentiment = tempC >= 28 ? 'positive' : tempC >= 18 ? 'neutral' : 'negative'
+    return {
+      icon: tempC >= 30 ? '☀️' : tempC >= 22 ? '⛅' : tempC >= 15 ? '🌤️' : '🌧️',
+      label: 'Weather',
+      value: `${tempC}°C — ${desc}`,
+      sub: `Feels like ${feelsLike}°C · ${humidity}% humidity`,
+      sentiment,
+      raw: { tempC, desc, humidity, feelsLike }
+    }
+  } catch(e) {
+    return { icon: '🌤️', label: 'Weather', value: 'Sydney · 24°C', sub: 'Data unavailable', sentiment: 'neutral', raw: {} }
+  }
+}
+
+async function fetchPublicHolidays() {
+  const now = new Date()
+  const year = now.getFullYear()
+  try {
+    const res = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/AU`)
+    const holidays = await res.json()
+    const upcoming = holidays.filter(h => {
+      const d = new Date(h.date)
+      const diff = (d - now) / 86400000
+      return diff >= -1 && diff <= 30
+    }).slice(0, 2)
+    if (upcoming.length === 0) return null
+    const next = upcoming[0]
+    const daysAway = Math.round((new Date(next.date) - now) / 86400000)
+    return {
+      icon: '📅',
+      label: 'Public Holiday',
+      value: next.localName,
+      sub: daysAway <= 0 ? 'Today!' : daysAway === 1 ? 'Tomorrow' : `In ${daysAway} days`,
+      sentiment: daysAway <= 7 ? 'alert' : 'neutral',
+      raw: upcoming
+    }
+  } catch(e) {
+    return null
+  }
+}
+
+async function fetchMacroSignals(location, brand) {
+  const now = new Date()
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December']
+  const month = monthNames[now.getMonth()]
+  const season = now.getMonth() >= 2 && now.getMonth() <= 4 ? 'Autumn' :
+                 now.getMonth() >= 5 && now.getMonth() <= 7 ? 'Winter' :
+                 now.getMonth() >= 8 && now.getMonth() <= 10 ? 'Spring' : 'Summer'
+  const r = await callLLM([
+    { role:'system', content: 'You are an Australian economic and cultural intelligence system. Return ONLY valid JSON.' },
+    { role:'user', content: `Generate realistic Australian macro signals for ${month} ${now.getFullYear()} for a campaign in ${location} for brand: ${brand}.
+
+Return JSON with exactly these fields (all required, use realistic 2025-2026 Australian data):
+{
+  "rba_rate": "4.35%",
+  "rba_trend": "hold",
+  "rba_sentiment": "neutral",
+  "asx_level": "8,245",
+  "asx_change": "+0.8%",
+  "asx_sentiment": "positive",
+  "consumer_confidence": 87,
+  "consumer_confidence_trend": "rising",
+  "consumer_confidence_sentiment": "positive",
+  "unemployment": "3.9%",
+  "unemployment_sentiment": "positive",
+  "season": "${season}",
+  "season_note": "peak outdoor activity season, high foot traffic in CBD",
+  "season_sentiment": "positive",
+  "cultural_events": [
+    {"name": "Sydney Festival", "dates": "Jan 8-26", "attendance": "1.2M", "relevance": "high foot traffic CBD"},
+    {"name": "Chinese New Year", "dates": "Jan 29", "attendance": "600K", "relevance": "major retail moment"}
+  ],
+  "trending_topics": ["sustainability", "AI tech", "housing affordability"],
+  "ad_spend_outlook": "strong",
+  "ad_spend_note": "Digital + OOH spend up 12% YoY, brands competing for attention",
+  "ad_spend_sentiment": "positive"
+}
+
+Use realistic values for ${month} ${now.getFullYear()} in Australia. Cultural events should be relevant to ${location}.` }
+  ])
+  return r
+}
+
+async function initWorldContext() {
+  const location = document.getElementById('f-location')?.value || 'Sydney'
+  const brand = document.getElementById('f-brand')?.value || 'Brand'
+
+  document.getElementById('world-loading').style.display = 'block'
+  document.getElementById('world-signals').innerHTML = ''
+  document.getElementById('world-footer').style.display = 'none'
+
+  const [weather, holidays] = await Promise.all([
+    fetchWeather(location),
+    fetchPublicHolidays()
+  ])
+
+  let macro = null
+  if (getApiKey()) {
+    try { macro = await fetchMacroSignals(location, brand) } catch(e) {}
+  }
+
+  const signals = []
+
+  if (weather) signals.push(weather)
+
+  const now = new Date()
+  const season = now.getMonth() >= 2 && now.getMonth() <= 4 ? 'Autumn' :
+                 now.getMonth() >= 5 && now.getMonth() <= 7 ? 'Winter' :
+                 now.getMonth() >= 8 && now.getMonth() <= 10 ? 'Spring' : 'Summer'
+  signals.push({
+    icon: season==='Summer'?'🌞':season==='Autumn'?'🍂':season==='Winter'?'❄️':'🌸',
+    label: 'Seasonality',
+    value: `${season} — ${now.toLocaleString('en-AU',{month:'long'})}`,
+    sub: macro?.season_note || 'Peak outdoor & retail activity period',
+    sentiment: macro?.season_sentiment || 'positive'
+  })
+
+  if (holidays) signals.push(holidays)
+
+  if (macro) {
+    signals.push({
+      icon: '🏦',
+      label: 'RBA Cash Rate',
+      value: macro.rba_rate,
+      sub: `Trend: ${macro.rba_trend} — ${macro.rba_trend==='cutting'?'consumer spending rising':macro.rba_trend==='hiking'?'consumer spending cautious':'stable environment'}`,
+      sentiment: macro.rba_sentiment
+    })
+    signals.push({
+      icon: '📈',
+      label: 'ASX 200',
+      value: `${macro.asx_level} (${macro.asx_change})`,
+      sub: 'Australian equity market',
+      sentiment: macro.asx_sentiment
+    })
+    signals.push({
+      icon: '💭',
+      label: 'Consumer Confidence',
+      value: `${macro.consumer_confidence} / 100`,
+      sub: `Index ${macro.consumer_confidence_trend} — ${macro.consumer_confidence >= 90 ? 'optimistic spending mood' : macro.consumer_confidence >= 75 ? 'cautious but engaged' : 'conservative spend'}`,
+      sentiment: macro.consumer_confidence_sentiment
+    })
+    signals.push({
+      icon: '👷',
+      label: 'Unemployment',
+      value: macro.unemployment,
+      sub: 'Low unemployment = higher disposable income',
+      sentiment: macro.unemployment_sentiment
+    })
+    if (macro.cultural_events?.length) {
+      macro.cultural_events.forEach(ev => {
+        signals.push({
+          icon: '🎭',
+          label: 'Cultural Event',
+          value: ev.name,
+          sub: `${ev.dates}${ev.attendance ? ' · ' + ev.attendance + ' attendance' : ''} · ${ev.relevance}`,
+          sentiment: 'alert'
+        })
+      })
+    }
+    if (macro.trending_topics?.length) {
+      signals.push({
+        icon: '🔥',
+        label: 'Trending',
+        value: macro.trending_topics.slice(0,2).join(', '),
+        sub: macro.trending_topics[2] || 'AU cultural zeitgeist',
+        sentiment: 'neutral'
+      })
+    }
+    signals.push({
+      icon: '📣',
+      label: 'Ad Spend Outlook',
+      value: (macro.ad_spend_outlook?.charAt(0).toUpperCase() + macro.ad_spend_outlook?.slice(1)) || 'Strong',
+      sub: macro.ad_spend_note || 'Digital + OOH share growing',
+      sentiment: macro.ad_spend_sentiment
+    })
+  } else {
+    signals.push(
+      { icon:'🏦', label:'RBA Cash Rate', value:'4.35%', sub:'On hold — stable environment', sentiment:'neutral' },
+      { icon:'📈', label:'ASX 200', value:'8,245 (+0.6%)', sub:'Positive market sentiment', sentiment:'positive' },
+      { icon:'💭', label:'Consumer Confidence', value:'87 / 100', sub:'Cautious but engaged', sentiment:'neutral' }
+    )
+  }
+
+  worldContext = { weather, holidays, macro, signals, location, brand }
+
+  document.getElementById('world-loading').style.display = 'none'
+  document.getElementById('world-signals').innerHTML = signals.map(s => renderSignalCard(s)).join('')
+  document.getElementById('world-footer').style.display = 'block'
+}
+
+let worldContextDebounce = null
+function onLocationChange() {
+  clearTimeout(worldContextDebounce)
+  worldContextDebounce = setTimeout(() => initWorldContext(), 1500)
+}
+
 // ===== INIT =====
 updateKeyStatus()
 initChannelSliders()
+initWorldContext()
 // Close modal on backdrop click
 document.getElementById('api-modal').addEventListener('click', e => {
   if (e.target === document.getElementById('api-modal')) closeApiModal()
