@@ -1430,7 +1430,14 @@ function combustionColor(pct) {
 }
 
 function isSuper(p) {
-  return (p.social_influence_score >= 8 || p.social_combustion_pct >= 72)
+  const occ = (p.occupation||'').toLowerCase()
+  // Social media influencer archetype: social-first channel + high combustion OR content creator job
+  const isInfluencer = (
+    (p.primary_channel||'').match(/social|tiktok|instagram|youtube/i) &&
+    (p.social_combustion_pct||0) >= 55
+  ) || occ.match(/influencer|content creator|youtuber|tiktoker|blogger|podcaster|streamer/)
+  // Traditional super connector: high influence score or combustion
+  return p.social_influence_score >= 8 || p.social_combustion_pct >= 72 || !!isInfluencer
 }
 
 async function addPersonaNode(persona) {
@@ -2307,7 +2314,7 @@ async function generateAllPersonas(brief, sysPrompt) {
   const all = []
   const segments = [
     'urban professionals and commuters using public transport',
-    'Gen Z and millennials 18-30, social media heavy',
+    'Gen Z and millennials 18-30, social media heavy — include 3-5 social media influencers or content creators with high follower counts and social combustion scores above 75%',
     'parents and families, suburban, health and home focused',
     'business owners and managers 35-55, time-poor',
     'retirees and older adults 55+, traditional media'
