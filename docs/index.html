@@ -101,7 +101,7 @@ html, body {
   gap: 6px;
 }
 #header-key-btn:hover {
-  border-color: rgba(255,246,236,0.25);
+  border-color: rgba(26,10,46,0.3);
   color: var(--bright);
 }
 #key-status-dot {
@@ -140,11 +140,11 @@ html, body {
   overflow-y: auto;
   padding: 20px;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255,246,236,0.1) transparent;
+  scrollbar-color: rgba(26,10,46,0.12) transparent;
 }
 #left-scroll::-webkit-scrollbar { width: 4px; }
 #left-scroll::-webkit-scrollbar-track { background: transparent; }
-#left-scroll::-webkit-scrollbar-thumb { background: rgba(255,246,236,0.1); border-radius: 2px; }
+#left-scroll::-webkit-scrollbar-thumb { background: rgba(26,10,46,0.12); border-radius: 2px; }
 
 #panel-title {
   font-family: 'AT-Realm-Bold', sans-serif;
@@ -169,7 +169,7 @@ html, body {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: rgba(255,246,236,0.45);
+  color: rgba(26,10,46,0.45);
   display: block;
   margin-bottom: 6px;
 }
@@ -243,7 +243,7 @@ html, body {
   align-items: center;
   gap: 10px;
   transition: color 0.3s;
-  border-bottom: 1px solid rgba(255,246,236,0.04);
+  border-bottom: 1px solid rgba(26,10,46,0.06);
 }
 .step.active { color: var(--bright); }
 .step.done { color: var(--green); }
@@ -367,7 +367,7 @@ html, body {
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
-  color: rgba(255,246,236,0.4);
+  color: rgba(26,10,46,0.45);
   font-family: 'AT-Realm-Regular', sans-serif;
   font-size: 13px;
   padding: 12px 14px 10px;
@@ -375,23 +375,23 @@ html, body {
   transition: all 0.2s;
   letter-spacing: 0.02em;
 }
-.tab-btn:hover { color: rgba(255,246,236,0.7); }
+.tab-btn:hover { color: rgba(26,10,46,0.75); }
 .tab-btn.active { color: #7c3aed; border-bottom-color: #7c3aed; }
 
 /* TAB CONTENT */
 #tab-content {
   display: none;
   flex: 0 0 auto;
-  max-height: 45%;
+  max-height: 62%;
   overflow-y: auto;
   background: var(--surface);
   border-top: 1px solid var(--border);
   scrollbar-width: thin;
-  scrollbar-color: rgba(255,246,236,0.1) transparent;
+  scrollbar-color: rgba(26,10,46,0.12) transparent;
 }
 #tab-content::-webkit-scrollbar { width: 4px; }
 #tab-content::-webkit-scrollbar-track { background: transparent; }
-#tab-content::-webkit-scrollbar-thumb { background: rgba(255,246,236,0.1); border-radius: 2px; }
+#tab-content::-webkit-scrollbar-thumb { background: rgba(26,10,46,0.12); border-radius: 2px; }
 #tab-content.visible {
   display: block;
 }
@@ -463,7 +463,7 @@ html, body {
   padding: 12px;
   transition: border-color 0.2s;
 }
-.persona-card:hover { border-color: rgba(255,246,236,0.15); }
+.persona-card:hover { border-color: rgba(124,58,237,0.3); }
 .persona-header {
   display: flex;
   align-items: center;
@@ -523,7 +523,7 @@ html, body {
   border: 1px solid;
 }
 .badge.noticed { color: var(--green); border-color: rgba(34,197,94,0.3); background: rgba(34,197,94,0.08); }
-.badge.not-noticed { color: rgba(255,246,236,0.3); border-color: rgba(255,246,236,0.08); background: transparent; }
+.badge.not-noticed { color: rgba(26,10,46,0.35); border-color: rgba(26,10,46,0.12); background: transparent; }
 .badge.emotion { color: var(--amber); border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.08); }
 .persona-quote {
   font-family: 'GT-Planar', sans-serif;
@@ -541,7 +541,7 @@ html, body {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: rgba(255,246,236,0.08);
+  background: rgba(26,10,46,0.04);
 }
 .skep-dot.filled { background: var(--amber); }
 
@@ -601,7 +601,7 @@ html, body {
 #report-content {
   font-family: 'GT-Planar', sans-serif;
   font-size: 13px;
-  color: var(--bright);
+  color: rgba(26,10,46,0.85);
   line-height: 1.7;
 }
 #report-content h1, #report-content h2 {
@@ -645,7 +645,7 @@ html, body {
   border-bottom: 1px solid rgba(26,10,46,0.06);
   color: rgba(26,10,46,0.8);
 }
-#report-content strong { color: var(--bright); }
+#report-content strong { color: #1a0a2e; font-weight: 600; }
 
 /* CHAT TAB */
 #chat-panel {
@@ -687,7 +687,7 @@ html, body {
   flex-direction: column;
   gap: 8px;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255,246,236,0.1) transparent;
+  scrollbar-color: rgba(26,10,46,0.12) transparent;
 }
 .chat-bubble {
   padding: 9px 13px;
@@ -706,7 +706,7 @@ html, body {
 .chat-bubble.assistant {
   background: var(--surface-el);
   border: 1px solid var(--border);
-  color: rgba(255,246,236,0.85);
+  color: rgba(26,10,46,0.8);
   align-self: flex-start;
 }
 .chat-bubble .bubble-name {
@@ -907,8 +907,8 @@ html, body {
     <!-- LEFT PANEL -->
     <div id="left-panel">
       <div id="left-scroll">
-        <div id="panel-title">Campaign Brief</div>
-        <div id="panel-sub">Configure your DOOH campaign to generate an AI-powered audience simulation</div>
+        <div id="panel-title">Media Campaign Brief</div>
+        <div id="panel-sub">Configure your omni-channel campaign to generate an AI-powered media simulation</div>
 
         <div id="regen-banner">⟳ Input changed — click Run Simulation to regenerate results</div>
 
@@ -919,6 +919,15 @@ html, body {
             <input class="form-input" id="f-brand" type="text" value="Koala Mattresses" oninput="onInputChange()">
           </div>
           <div class="form-group">
+            <label class="form-label" for="f-objective">Campaign Objective</label>
+            <select class="form-select" id="f-objective" oninput="onInputChange()">
+              <option value="Awareness">Brand Awareness</option>
+              <option value="Consideration">Consideration / Purchase Intent</option>
+              <option value="Conversion">Direct Response / Conversion</option>
+              <option value="Loyalty">Retention / Loyalty</option>
+            </select>
+          </div>
+          <div class="form-group">
             <label class="form-label" for="f-message">Campaign Message</label>
             <textarea class="form-textarea" id="f-message" oninput="onInputChange()">Better sleep starts tonight. Try Koala free for 120 nights.</textarea>
           </div>
@@ -927,8 +936,8 @@ html, body {
             <input class="form-input" id="f-audience" type="text" value="Urban professionals 25-45, health-conscious, recently moved or redecorating" oninput="onInputChange()">
           </div>
           <div class="form-group">
-            <label class="form-label" for="f-location">OOH Location</label>
-            <input class="form-input" id="f-location" type="text" value="Sydney CBD digital billboards + Town Hall Station concourse" oninput="onInputChange()">
+            <label class="form-label" for="f-location">Media Placement / Location</label>
+            <input class="form-input" id="f-location" type="text" value="Sydney CBD — outdoor, transit, digital + social retargeting" oninput="onInputChange()">
           </div>
           <div class="form-row">
             <div class="form-group">
@@ -1018,12 +1027,12 @@ html, body {
         </div>
 
         <!-- REPORT tab -->
-        <div class="tab-pane" id="pane-report">
+        <div class="tab-pane" id="pane-report" style="overflow-y:auto;max-height:58vh;padding:20px 24px;">
           <div id="report-content"></div>
         </div>
 
         <!-- CHANNEL MIX tab -->
-        <div class="tab-pane" id="tab-channel" style="padding:0;overflow:hidden;"></div>
+        <div class="tab-pane" id="tab-channel" style="padding:0;overflow-y:auto;max-height:58vh;"></div>
 
         <!-- CHAT tab -->
         <div class="tab-pane" id="pane-chat">
@@ -1099,8 +1108,8 @@ const EDGE_COLORS = {
   cascade_whatsapp:     '#22c55e',
   cascade_tiktok:       '#ec4899'
 }
-const SYSTEM_PROMPT = `You are a consumer behavior simulation engine for Lumos, Australia's leading programmatic DOOH platform.
-Simulate realistic Australian consumer responses to out-of-home advertising.
+const SYSTEM_PROMPT = `You are a media strategy simulation engine for Lumos, Australia's leading omni-channel media intelligence platform.
+Simulate realistic Australian consumer responses to integrated media campaigns across all channels — outdoor, digital, social, TV, search, and radio.
 Be specific, data-driven, and realistic. Use Australian English. Return valid JSON only.`
 
 // ===== STATE =====
@@ -1620,7 +1629,7 @@ async function generateAllPersonas(brief) {
       { role:'system', content: SYSTEM_PROMPT },
       { role:'user', content: `Generate 10 diverse Australian consumer personas for this segment: "${segments[b]}".
 Brand: ${brief.brand}. Message: "${brief.message}". Location: ${brief.location}.
-Return JSON: {"personas":[{"id":"p${b*10+1}","name":"...","age":28,"gender":"female","occupation":"...","suburb":"...","commute":"...","lifestyle_traits":["...","...","..."],"ad_skepticism":5,"social_influence_score":7,"primary_channel":"OOH|Social|TV|Digital|Radio"},...]}
+Return JSON: {"personas":[{"id":"p${b*10+1}","name":"...","age":28,"gender":"female","occupation":"...","suburb":"...","commute":"...","lifestyle_traits":["...","...","..."],"ad_skepticism":5,"social_influence_score":7,"primary_channel":"OOH/DOOH|Social|TV/CTV|Digital|Radio|Search","social_combustion_pct":65},...]}
 IDs p${b*10+1} to p${b*10+10}. Vary ages 18-70, suburbs across AU cities.` }
     ])
     const batch = r.personas || []
@@ -1649,8 +1658,8 @@ async function simulateAllExposure(personas, brief) {
     updateStepProgress(2, Math.round((b/5)*100))
     const r = await callLLM([
       { role:'system', content: SYSTEM_PROMPT },
-      { role:'user', content: `Simulate 10 personas seeing OOH ad at ${brief.location}.
-Brand: ${brief.brand}. Message: "${brief.message}".
+      { role:'user', content: `Simulate 10 personas encountering a media campaign at ${brief.location}.
+Brand: ${brief.brand}. Objective: ${brief.objective}. Message: "${brief.message}". Channel mix: OOH/DOOH, Social, Digital, Search, TV.
 Personas: ${JSON.stringify(batch.map(p=>({id:p.id,name:p.name,age:p.age,occupation:p.occupation,ad_skepticism:p.ad_skepticism,primary_channel:p.primary_channel})))}.
 Return JSON: {"reactions":[{"persona_id":"p1","noticed":true,"recall_strength":3,"emotional_response":"curious","likely_action":"searches brand","quote":"..."},...]}` }
     ])
@@ -1856,7 +1865,7 @@ function renderChannelInsights(roasData) {
   const insights = [
     { icon:'💡', text:`<strong>${top.ch}</strong> delivers highest ROAS at <strong>${top.roas.toFixed(2)}×</strong> with your current budget allocation` },
     { icon:'⏱️', text:`<strong>${topDecay}</strong> has the longest carryover — <strong>${CH[topDecay].memory_weeks} weeks</strong> of effect after campaign ends` },
-    { icon:'🔗', text:`<strong>OOH/DOOH + Search</strong> combination delivers a <strong>1.6× synergy uplift</strong> — your most powerful pairing` },
+    { icon:'🔗', text:`<strong>OOH/DOOH + Search</strong> is your strongest channel pairing — <strong>1.6× synergy uplift</strong> when run together` },
   ]
   const el = document.getElementById('ch-insights')
   if (el) el.innerHTML = insights.map(ins => `
@@ -1913,7 +1922,7 @@ async function runSimulation() {
     terminalLog('Modelling social cascade...')
     const r3 = await callLLM([
       { role:'system', content: SYSTEM_PROMPT },
-      { role:'user', content: `Simulate 15 social interactions from these OOH ad reactions.
+      { role:'user', content: `Simulate 15 realistic social word-of-mouth interactions following campaign exposure.
 Sample reactions: ${JSON.stringify(reactions.slice(0,8).map(r=>({persona_id:r.persona_id,recall_strength:r.recall_strength,emotional_response:r.emotional_response})))}.
 Persona names: ${personas.slice(0,15).map(p=>p.name).join(', ')}.
 Return JSON: {"cascades":[{"from_name":"...","to_name":"...","channel":"conversation|instagram|whatsapp|tiktok","message":"...","influence_delta":0.7},...]} with exactly 15 entries.` }
@@ -1933,8 +1942,8 @@ Return JSON: {"cascades":[{"from_name":"...","to_name":"...","channel":"conversa
     terminalLog('Synthesising prediction report...')
     const rpt = await callLLM([
       { role:'system', content: SYSTEM_PROMPT },
-      { role:'user', content: `Generate a comprehensive omni-channel DOOH campaign prediction report.
-Brand: ${brief.brand}, Budget: AUD ${brief.budget}, Duration: ${brief.duration}, Location: ${brief.location}.
+      { role:'user', content: `Generate a comprehensive omni-channel media campaign prediction report.
+Brand: ${brief.brand}, Objective: ${brief.objective||"Awareness"}, Budget: AUD ${brief.budget}, Duration: ${brief.duration}, Location: ${brief.location}.
 Sample reactions (${reactions.length} total): ${JSON.stringify(reactions.slice(0,10))}.
 Cascades: ${JSON.stringify(cascades.slice(0,8))}.
 Return JSON: {"report":"## Executive Summary\n...full markdown...","recall_pct":74,"intent_pct":31,"weekly_reach":125000,"roas":2.4}
@@ -1973,12 +1982,12 @@ async function sendChat() {
 
   let sysContent = SYSTEM_PROMPT
   if (personaId === '__engine__') {
-    sysContent += `\n\nYou are the Lumos Engine, providing strategic insights about this DOOH campaign for ${brief.brand}.`
+    sysContent += `\n\nYou are the Lumos Engine, providing strategic omni-channel insights for the ${brief.brand} campaign.`
     if (window._simStats) sysContent += ` Campaign stats: recall ${window._simStats.recall_pct}%, intent ${window._simStats.intent_pct}%, reach ${formatNum(window._simStats.weekly_reach)}, ROAS ${window._simStats.roas}x.`
   } else {
     const p = personas.find(x => x.id === personaId)
     const r = reactions.find(x => x.persona_id === personaId) || {}
-    if (p) sysContent += `\n\nYou ARE this specific consumer persona. ALWAYS stay in character as ${p.name}, ${p.age}, ${p.occupation} from ${p.suburb}. Respond naturally as this person would, with their real opinions about the "${brief.brand}" OOH ad. Your emotional reaction was "${r.emotional_response}" and recall strength was ${r.recall_strength}/5. Use casual Australian English.`
+    if (p) sysContent += `\n\nYou ARE this specific consumer persona. ALWAYS stay in character as ${p.name}, ${p.age}, ${p.occupation} from ${p.suburb}. Respond naturally as this person would, with their real exposure to the "${brief.brand}" campaign. Your emotional reaction was "${r.emotional_response}" and recall strength was ${r.recall_strength}/5. Use casual Australian English.`
   }
 
   try {
