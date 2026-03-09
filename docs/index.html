@@ -1547,8 +1547,7 @@ function initTerminal(projId) {
 function terminalLog(msg) {
   const el = document.getElementById('live-log')
   if (!el) return
-  el.textContent += msg + '
-'
+  el.textContent += msg + '\n'
   el.scrollTop = el.scrollHeight
 }
 function logLive(msg) { terminalLog(msg) }
