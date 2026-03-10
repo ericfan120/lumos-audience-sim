@@ -929,7 +929,7 @@ html, body {
   position: absolute;
   inset: 0;
   overflow-y: auto;
-  background: var(--surface);
+  background: var(--bg);
   color: var(--bright);
   box-sizing: border-box;
 }
@@ -2653,10 +2653,9 @@ function updateAllocTotal() {
   })
 }
 
-// ===== PERSONA GENERATION (50 PERSONAS, 5 BATCHES) =====
+// ===== PERSONA GENERATION (50 PERSONAS, 5 PARALLEL BATCHES) =====
 async function generateAllPersonas(brief, sysPrompt) {
   const _sys = sysPrompt || SYSTEM_PROMPT
-  const all = []
   const segments = [
     'urban professionals and commuters using public transport',
     'Gen Z and millennials 18-30, social media heavy — include 3-5 social media influencers or content creators with high follower counts and social combustion scores above 75%',
@@ -2664,17 +2663,24 @@ async function generateAllPersonas(brief, sysPrompt) {
     'business owners and managers 35-55, time-poor',
     'retirees and older adults 55+, traditional media'
   ]
-  for (let b = 0; b < 5; b++) {
-    terminalLog(`Generating personas ${b*10+1}–${b*10+10} (${segments[b]})...`)
-    updateStepProgress(1, Math.round((b/5)*100))
-    const r = await callLLM([
+  terminalLog(`Spawning 5 segment batches in parallel...`)
+  updateStepProgress(1, 15)
+
+  const batchPromises = segments.map((seg, b) =>
+    callLLM([
       { role:'system', content: _sys },
-      { role:'user', content: `Generate 10 diverse Australian consumer personas for this segment: "${segments[b]}".
+      { role:'user', content: `Generate 10 diverse Australian consumer personas for this segment: "${seg}".
 Brand: ${brief.brand}. Message: "${brief.message}". Location: ${brief.location}.
 Return JSON: {"personas":[{"id":"p${b*10+1}","name":"...","age":28,"gender":"female","occupation":"...","suburb":"...","commute":"...","lifestyle_traits":["...","...","..."],"ad_skepticism":5,"social_influence_score":7,"primary_channel":"OOH/DOOH|Social|TV/CTV|Digital|Radio|Search","social_combustion_pct":65},...]}
 IDs p${b*10+1} to p${b*10+10}. Vary ages 18-70, suburbs across AU cities.` }
-    ])
-    const batch = r.personas || []
+    ]).then(r => ({ b, personas: r.personas || [] }))
+  )
+
+  const batchResults = await Promise.all(batchPromises)
+  updateStepProgress(1, 80)
+
+  const all = []
+  for (const { b, personas: batch } of batchResults.sort((a,z) => a.b - z.b)) {
     batch.forEach((p, j) => {
       const g = p.gender === 'male' ? 'men' : 'women'
       const n = ((b*10 + j) % 70) + 1
@@ -2684,35 +2690,38 @@ IDs p${b*10+1} to p${b*10+10}. Vary ages 18-70, suburbs across AU cities.` }
       all.push(p)
       await addPersonaNode(p)
       logLive(`Generated ${p.name}, ${p.age}, ${p.occupation}, ${p.suburb}`)
-      await sleep(60)
+      await sleep(20)
     }
   }
   setStep(1,'done')
   return all
 }
 
-// ===== EXPOSURE SIMULATION (5 BATCHES) =====
+// ===== EXPOSURE SIMULATION (5 PARALLEL BATCHES) =====
 async function simulateAllExposure(personas, brief, sysPrompt) {
   const _sys = sysPrompt || SYSTEM_PROMPT
-  const all = []
-  for (let b = 0; b < 5; b++) {
+  terminalLog(`Running exposure simulation for all 50 personas in parallel...`)
+  updateStepProgress(2, 15)
+
+  const batchPromises = Array.from({length: 5}, (_, b) => {
     const batch = personas.slice(b*10, b*10+10)
-    terminalLog(`Simulating exposure batch ${b+1}/5...`)
-    updateStepProgress(2, Math.round((b/5)*100))
-    const r = await callLLM([
+    return callLLM([
       { role:'system', content: _sys },
       { role:'user', content: `Simulate 10 personas encountering a media campaign at ${brief.location}.
 Brand: ${brief.brand}. Objective: ${brief.objective}. Message: "${brief.message}". Channel mix: OOH/DOOH, Social, Digital, Search, TV.
 Personas: ${JSON.stringify(batch.map(p=>({id:p.id,name:p.name,age:p.age,occupation:p.occupation,ad_skepticism:p.ad_skepticism,primary_channel:p.primary_channel})))}.
 Return JSON: {"reactions":[{"persona_id":"p1","noticed":true,"recall_strength":3,"emotional_response":"curious","likely_action":"searches brand","quote":"..."},...]}` }
-    ])
-    const reactions = r.reactions || []
-    for (const rx of reactions) {
-      all.push(rx)
-      const p = personas.find(x => x.id === rx.persona_id)
-      if (p) { addExposureEdge(rx, p); terminalLog(`[exposure] ${p.name}: recall ${rx.recall_strength}/5`) }
-      await sleep(30)
-    }
+    ]).then(r => r.reactions || [])
+  })
+
+  const batchResults = await Promise.all(batchPromises)
+  updateStepProgress(2, 85)
+
+  const all = batchResults.flat()
+  for (const rx of all) {
+    const p = personas.find(x => x.id === rx.persona_id)
+    if (p) { addExposureEdge(rx, p); terminalLog(`[exposure] ${p.name}: recall ${rx.recall_strength}/5`) }
+    await sleep(10)
   }
   setStep(2,'done')
   return all
@@ -3197,7 +3206,7 @@ Return JSON: {"cascades":[{"from_name":"...","to_name":"...","channel":"whatsapp
       const fp = personas.find(p=>p.name===c.from_name)
       const tp = personas.find(p=>p.name===c.to_name)
       if (fp&&tp) { addCascadeEdge(c,fp.id,tp.id); terminalLog(`[cascade] ${c.from_name} → ${c.to_name} via ${c.channel}`) }
-      await sleep(80)
+      await sleep(30)
     }
     // Step 3b: WOM reach
     const superConnectors = personas.filter(p => isSuper(p))
@@ -3212,7 +3221,7 @@ Return JSON: {"cascades":[{"from_name":"...","to_name":"...","channel":"whatsapp
         window._simWOM.push({ from: sc.id, to: target.id, channel: 'word_of_mouth' })
         addWOMEdge(sc, target)
         terminalLog(`[WOM] ${sc.name} → ${target.name}`)
-        await sleep(50)
+        await sleep(20)
       }
     }
     const superCount = personas.filter(p => isSuper(p)).length
