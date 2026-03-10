@@ -1079,18 +1079,18 @@ html, body {
     <!-- LEFT PANEL -->
     <div id="left-panel">
       <div id="left-scroll">
-        <div id="process-steps" style="display:flex;gap:0;margin-bottom:20px;border-radius:8px;overflow:hidden;border:1px solid rgba(26,10,46,0.08)">
-          <div id="pstep-1" style="flex:1;padding:10px 8px;background:rgba(124,58,237,0.10);text-align:center;transition:all 0.3s;border:1px solid rgba(124,58,237,0.35)">
-            <div style="font-family:AT-Realm-Bold;font-size:10px;"><span class="pstep-num" style="color:#7c3aed">1</span> <span class="pstep-lbl" style="color:#7c3aed">BRIEF</span></div>
-            <div class="pstep-sub" style="font-family:GT-Planar;font-size:9px;color:rgba(124,58,237,0.65)">Define campaign</div>
+        <div id="process-steps" style="display:flex;gap:6px;margin-bottom:20px;">
+          <div id="pstep-1" style="flex:1;padding:10px 8px;background:#7c3aed;text-align:center;border-radius:8px;transition:all 0.3s;cursor:default">
+            <div style="font-family:AT-Realm-Bold;font-size:11px;color:#fff;letter-spacing:0.04em"><span class="pstep-num">1</span> <span class="pstep-lbl">BRIEF</span></div>
+            <div class="pstep-sub" style="font-family:GT-Planar;font-size:9px;color:rgba(255,255,255,0.75);margin-top:2px">Define campaign</div>
           </div>
-          <div id="pstep-2" style="flex:1;padding:10px 8px;background:rgba(26,10,46,0.03);text-align:center;border-left:1px solid rgba(26,10,46,0.08);transition:all 0.3s">
-            <div style="font-family:AT-Realm-Bold;font-size:10px;"><span class="pstep-num" style="color:rgba(26,10,46,0.3)">2</span> <span class="pstep-lbl" style="color:rgba(26,10,46,0.35)">SIMULATE</span></div>
-            <div class="pstep-sub" style="font-family:GT-Planar;font-size:9px;color:rgba(26,10,46,0.25)">50 AI agents</div>
+          <div id="pstep-2" style="flex:1;padding:10px 8px;background:rgba(26,10,46,0.07);text-align:center;border-radius:8px;transition:all 0.3s;cursor:default">
+            <div style="font-family:AT-Realm-Bold;font-size:11px;color:rgba(26,10,46,0.35);letter-spacing:0.04em"><span class="pstep-num">2</span> <span class="pstep-lbl">SIMULATE</span></div>
+            <div class="pstep-sub" style="font-family:GT-Planar;font-size:9px;color:rgba(26,10,46,0.25);margin-top:2px">50 AI agents</div>
           </div>
-          <div id="pstep-3" style="flex:1;padding:10px 8px;background:rgba(26,10,46,0.03);text-align:center;border-left:1px solid rgba(26,10,46,0.08);transition:all 0.3s">
-            <div style="font-family:AT-Realm-Bold;font-size:10px;"><span class="pstep-num" style="color:rgba(26,10,46,0.3)">3</span> <span class="pstep-lbl" style="color:rgba(26,10,46,0.35)">STRATEGY</span></div>
-            <div class="pstep-sub" style="font-family:GT-Planar;font-size:9px;color:rgba(26,10,46,0.25)">Media plan output</div>
+          <div id="pstep-3" style="flex:1;padding:10px 8px;background:rgba(26,10,46,0.07);text-align:center;border-radius:8px;transition:all 0.3s;cursor:default">
+            <div style="font-family:AT-Realm-Bold;font-size:11px;color:rgba(26,10,46,0.35);letter-spacing:0.04em"><span class="pstep-num">3</span> <span class="pstep-lbl">STRATEGY</span></div>
+            <div class="pstep-sub" style="font-family:GT-Planar;font-size:9px;color:rgba(26,10,46,0.25);margin-top:2px">Media plan output</div>
           </div>
         </div>
         <div id="panel-title">Media Campaign Brief</div>
@@ -1532,27 +1532,27 @@ function setProcessStep(n) {
   for (let i = 1; i <= 3; i++) {
     const el = document.getElementById('pstep-' + i)
     if (!el) continue
-    const numEl = el.querySelector('.pstep-num')
-    const lblEl = el.querySelector('.pstep-lbl')
+    const inner = el.querySelector('div:first-child')
     const subEl = el.querySelector('.pstep-sub')
+    const numEl = el.querySelector('.pstep-num')
     if (i < n) {
-      el.style.background = 'rgba(22,163,74,0.08)'
-      el.style.borderColor = 'rgba(22,163,74,0.3)'
-      if (numEl) { numEl.textContent = '✓'; numEl.style.color = '#16a34a' }
-      if (lblEl) lblEl.style.color = '#16a34a'
-      if (subEl) subEl.style.color = 'rgba(22,163,74,0.7)'
+      // Completed — green solid
+      el.style.background = '#16a34a'
+      if (inner) inner.style.color = '#fff'
+      if (subEl) subEl.style.color = 'rgba(255,255,255,0.75)'
+      if (numEl) numEl.textContent = '✓'
     } else if (i === n) {
-      el.style.background = 'rgba(124,58,237,0.10)'
-      el.style.borderColor = 'rgba(124,58,237,0.35)'
-      if (numEl) { numEl.textContent = String(i); numEl.style.color = '#7c3aed' }
-      if (lblEl) lblEl.style.color = '#7c3aed'
-      if (subEl) subEl.style.color = 'rgba(124,58,237,0.65)'
+      // Active — purple solid
+      el.style.background = '#7c3aed'
+      if (inner) inner.style.color = '#fff'
+      if (subEl) subEl.style.color = 'rgba(255,255,255,0.75)'
+      if (numEl) numEl.textContent = String(i)
     } else {
-      el.style.background = 'rgba(26,10,46,0.03)'
-      el.style.borderColor = 'rgba(26,10,46,0.08)'
-      if (numEl) { numEl.textContent = String(i); numEl.style.color = 'rgba(26,10,46,0.3)' }
-      if (lblEl) lblEl.style.color = 'rgba(26,10,46,0.35)'
+      // Inactive — muted
+      el.style.background = 'rgba(26,10,46,0.07)'
+      if (inner) inner.style.color = 'rgba(26,10,46,0.35)'
       if (subEl) subEl.style.color = 'rgba(26,10,46,0.25)'
+      if (numEl) numEl.textContent = String(i)
     }
   }
 }
@@ -1633,6 +1633,10 @@ function loadDemo() {
   document.getElementById('f-budget').value    = DEMO_BRIEF.budget
   onInputChange()
 
+  // Init graph so D3 is ready for node operations
+  initGraph()
+  simDone = false
+
   // Pre-assign cascade scores
   DEMO_PERSONAS.forEach(p => {
     p.cascadeScore = cascadePower(p, DEMO_REACTIONS, [])
@@ -1643,24 +1647,18 @@ function loadDemo() {
   window._simStats      = DEMO_STATS
   window._simCascades   = DEMO_CASCADES
 
-  // Add KPI nodes to map (skip simulation)
+  // Add campaign node + persona nodes to mind map
+  addCampaignNode(DEMO_BRIEF)
+  DEMO_PERSONAS.forEach(p => addPersonaNode(p))
   addKPINodes(DEMO_STATS)
 
   // Render results
   renderResults(DEMO_PERSONAS, DEMO_REACTIONS, DEMO_CASCADES, DEMO_STATS, DEMO_REPORT, DEMO_BRIEF)
 
-  // Activate personas on graph (simplified — just labels)
-  DEMO_PERSONAS.forEach(p => addPersonaNode(p))
-
+  // Advance wizard + show results
   setProcessStep(3)
-  switchTab('plan')
-
-  // Update loading stats display
-  _setStat('reach', formatNum(DEMO_STATS.weekly_reach))
-  _setStat('roas', DEMO_STATS.roas.toFixed(1) + 'x')
-  _setStat('agents', DEMO_PERSONAS.length)
-  _setStat('super', DEMO_PERSONAS.filter(p => isSuper(p)).length)
   showResultTabs()
+  simDone = true
 }
 
 // ===== STATE =====
@@ -3831,8 +3829,8 @@ async function initWorldContext() {
   // ── PHASE 2: enrich with live data (non-blocking, each with timeout) ─────
   let weather = null, holidays = null, macro = null
 
-  try { weather = await withTimeout(fetchWeather(location), 5000) } catch(e) {}
-  try { holidays = await withTimeout(fetchPublicHolidays(), 5000) } catch(e) {}
+  try { weather = await withTimeout(fetchWeather(location), 3000) } catch(e) {}
+  try { holidays = await withTimeout(fetchPublicHolidays(), 3000) } catch(e) {}
   if (getApiKey()) {
     try { macro = await withTimeout(fetchMacroSignals(location, brand), 12000) } catch(e) {}
   }
@@ -3900,6 +3898,7 @@ function onLocationChange() {
 // ===== INIT =====
 updateKeyStatus()
 initChannelSliders()
+setProcessStep(1)
 initWorldContext()
 // Close modal on backdrop click
 document.getElementById('api-modal').addEventListener('click', e => {
