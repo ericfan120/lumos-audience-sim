@@ -855,16 +855,16 @@ html, body {
 }
 .node-campaign { animation: campaign-pulse 2s ease-in-out infinite; }
 
-/* ── PALANTIR COMMAND CENTER ─────────────────────────────── */
+/* ── COMMAND CENTER ─────────────────────────────── */
 #right-panel {
-  background: #07080a !important;
-  color: #e8e3f0;
+  background: var(--surface) !important;
+  color: var(--bright);
 }
 #command-bar {
   display: flex;
   align-items: stretch;
-  background: #07080a;
-  border-bottom: 1px solid rgba(124,58,237,0.25);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
   flex-shrink: 0;
   position: relative;
   z-index: 20;
@@ -883,7 +883,7 @@ html, body {
   border: none !important;
   border-bottom: 2px solid transparent !important;
   border-radius: 0 !important;
-  color: rgba(232,227,240,0.35) !important;
+  color: rgba(26,10,46,0.4) !important;
   font-family: 'AT-Realm-Regular', monospace !important;
   font-size: 9px !important;
   text-transform: uppercase !important;
@@ -898,13 +898,13 @@ html, body {
   align-items: center !important;
 }
 .tab-btn:hover {
-  color: rgba(232,227,240,0.65) !important;
-  background: rgba(124,58,237,0.07) !important;
+  color: rgba(26,10,46,0.7) !important;
+  background: rgba(124,58,237,0.06) !important;
 }
 .tab-btn.active {
-  color: #a78bfa !important;
+  color: #7c3aed !important;
   border-bottom: 2px solid #7c3aed !important;
-  background: rgba(124,58,237,0.1) !important;
+  background: rgba(124,58,237,0.07) !important;
 }
 #sys-status {
   display: flex;
@@ -912,7 +912,7 @@ html, body {
   gap: 12px;
   padding: 0 16px;
   flex-shrink: 0;
-  border-left: 1px solid rgba(124,58,237,0.15);
+  border-left: 1px solid var(--border);
 }
 #tab-content {
   flex: 1 1 0 !important;
@@ -937,8 +937,8 @@ html, body {
   display: block !important;
 }
 #pane-map {
-  background: #0a0c10 !important;
-  color: #e8e3f0 !important;
+  background: #faf5ff !important;
+  color: #1a0a2e !important;
 }
 #pane-map.active {
   display: block !important;
@@ -981,17 +981,17 @@ html, body {
   border-radius: 2px;
   box-shadow: 0 0 8px rgba(124,58,237,0.7);
 }
-/* World context dark */
+/* World context light */
 #world-context-panel {
-  background: rgba(7,8,10,0.95) !important;
-  border-color: rgba(124,58,237,0.25) !important;
-  color: #e8e3f0 !important;
+  background: rgba(255,252,248,0.97) !important;
+  border-color: rgba(124,58,237,0.2) !important;
+  color: #1a0a2e !important;
 }
-/* Graph legend dark */
+/* Graph legend light */
 #graph-legend {
-  background: rgba(7,8,10,0.95) !important;
-  border-color: rgba(124,58,237,0.25) !important;
-  color: #e8e3f0 !important;
+  background: rgba(255,252,248,0.97) !important;
+  border-color: rgba(124,58,237,0.2) !important;
+  color: #1a0a2e !important;
 }
 /* Loading animation */
 #sim-loading {
@@ -1022,17 +1022,17 @@ html, body {
   0%   { transform: translateX(-100%); }
   100% { transform: translateX(200%); }
 }
-/* SC detail panel dark */
+/* SC detail panel light */
 #sc-detail-panel {
-  background: rgba(10,11,14,0.97) !important;
-  border-color: rgba(124,58,237,0.2) !important;
-  color: #e8e3f0 !important;
+  background: rgba(255,252,248,0.98) !important;
+  border-color: rgba(124,58,237,0.15) !important;
+  color: #1a0a2e !important;
 }
-/* Graph idle dark */
+/* Graph idle */
 #graph-idle { background: transparent; }
 #graph-panel {
-  background-color: #0a0c10 !important;
-  background-image: radial-gradient(rgba(124,58,237,0.08) 1px, transparent 1px) !important;
+  background-color: #faf5ff !important;
+  background-image: radial-gradient(rgba(124,58,237,0.07) 1px, transparent 1px) !important;
 }
 
 </style>
@@ -1183,9 +1183,9 @@ html, body {
         <div id="sys-status">
           <div style="display:flex;align-items:center;gap:5px">
             <div id="sys-dot" style="width:7px;height:7px;border-radius:50%;background:#34d399;color:#34d399;animation:pulse 2s infinite"></div>
-            <span id="sys-label" style="font-family:monospace;font-size:9px;color:rgba(232,227,240,0.35);text-transform:uppercase;letter-spacing:0.1em">IDLE</span>
+            <span id="sys-label" style="font-family:monospace;font-size:9px;color:rgba(26,10,46,0.4);text-transform:uppercase;letter-spacing:0.1em">IDLE</span>
           </div>
-          <span id="sys-time" style="font-family:monospace;font-size:9px;color:rgba(232,227,240,0.2)"></span>
+          <span id="sys-time" style="font-family:monospace;font-size:9px;color:rgba(26,10,46,0.3)"></span>
         </div>
       </div>
 
@@ -1201,8 +1201,8 @@ html, body {
           top:12px;
           bottom:12px;
           width:220px;
-          background:rgba(7,8,10,0.95);
-          border:1px solid rgba(124,58,237,0.25);
+          background:rgba(255,252,248,0.97);
+          border:1px solid rgba(124,58,237,0.2);
           border-radius:12px;
           padding:14px;
           backdrop-filter:blur(12px);
@@ -1214,14 +1214,14 @@ html, body {
           scrollbar-width:thin;
           scrollbar-color:rgba(124,58,237,0.2) transparent;
         ">
-          <div style="font-family:AT-Realm-Bold;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#a78bfa;margin-bottom:4px;display:flex;align-items:center;gap:6px">
+          <div style="font-family:AT-Realm-Bold;font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#7c3aed;margin-bottom:4px;display:flex;align-items:center;gap:6px">
             <span>🌐</span> World Context
           </div>
-          <div id="world-loading" style="font-family:GT-Planar;font-size:11px;color:rgba(232,227,240,0.35);text-align:center;padding:20px 0">
+          <div id="world-loading" style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.4);text-align:center;padding:20px 0">
             Fetching signals...
           </div>
           <div id="world-signals" style="display:flex;flex-direction:column;gap:6px"></div>
-          <div id="world-footer" style="display:none;font-family:GT-Planar;font-size:9px;color:rgba(232,227,240,0.25);text-align:center;margin-top:4px;padding-top:8px;border-top:1px solid rgba(124,58,237,0.12)">
+          <div id="world-footer" style="display:none;font-family:GT-Planar;font-size:9px;color:rgba(26,10,46,0.35);text-align:center;margin-top:4px;padding-top:8px;border-top:1px solid rgba(124,58,237,0.15)">
             Signals factored into simulation
           </div>
         </div>
@@ -1230,27 +1230,27 @@ html, body {
           <div id="idle-icon">🧠</div>
           <div id="idle-text">Run a simulation to see the audience mind map appear here</div>
         </div>
-        <div id="graph-legend" style="position:absolute;bottom:16px;right:16px;background:rgba(7,8,10,0.95);backdrop-filter:blur(8px);border:1px solid rgba(124,58,237,0.25);border-radius:10px;padding:12px 14px;z-index:15;pointer-events:none">
-          <div style="font-family:AT-Realm-Bold;font-size:9px;color:#a78bfa;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Legend</div>
+        <div id="graph-legend" style="position:absolute;bottom:16px;right:16px;background:rgba(255,252,248,0.97);backdrop-filter:blur(8px);border:1px solid rgba(124,58,237,0.2);border-radius:10px;padding:12px 14px;z-index:15;pointer-events:none">
+          <div style="font-family:AT-Realm-Bold;font-size:9px;color:#7c3aed;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Legend</div>
           <div style="display:flex;gap:20px">
             <div>
-              <div style="font-size:8px;font-family:GT-Planar;color:rgba(232,227,240,0.35);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:5px">Nodes</div>
+              <div style="font-size:8px;font-family:GT-Planar;color:rgba(26,10,46,0.4);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:5px">Nodes</div>
               <div style="display:flex;flex-direction:column;gap:4px">
-                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#e8e3f0"><div style="width:14px;height:14px;border-radius:50%;background:#7c3aed;flex-shrink:0"></div>Campaign</div>
-                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#e8e3f0"><div style="width:10px;height:10px;border-radius:50%;background:#c4b5fd;flex-shrink:0"></div>Persona</div>
-                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#e8e3f0"><div style="width:12px;height:12px;border-radius:50%;background:#fef3c7;border:2px solid #f59e0b;flex-shrink:0"></div>Super Connector ⚡</div>
-                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#e8e3f0"><div style="width:10px;height:10px;border-radius:50%;background:rgba(245,158,11,0.12);border:1px dashed #f59e0b;flex-shrink:0"></div>WOM Reach ◎</div>
-                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#e8e3f0"><div style="width:10px;height:10px;border-radius:50%;background:#e0f2fe;border:1.5px solid #0ea5e9;flex-shrink:0"></div>Channel</div>
+                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#1a0a2e"><div style="width:14px;height:14px;border-radius:50%;background:#7c3aed;flex-shrink:0"></div>Campaign</div>
+                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#1a0a2e"><div style="width:10px;height:10px;border-radius:50%;background:#c4b5fd;flex-shrink:0"></div>Persona</div>
+                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#1a0a2e"><div style="width:12px;height:12px;border-radius:50%;background:#fef3c7;border:2px solid #f59e0b;flex-shrink:0"></div>Super Connector ⚡</div>
+                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#1a0a2e"><div style="width:10px;height:10px;border-radius:50%;background:rgba(245,158,11,0.12);border:1px dashed #f59e0b;flex-shrink:0"></div>WOM Reach ◎</div>
+                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#1a0a2e"><div style="width:10px;height:10px;border-radius:50%;background:#e0f2fe;border:1.5px solid #0ea5e9;flex-shrink:0"></div>Channel</div>
               </div>
             </div>
             <div>
-              <div style="font-size:8px;font-family:GT-Planar;color:rgba(232,227,240,0.35);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:5px">Connections</div>
+              <div style="font-size:8px;font-family:GT-Planar;color:rgba(26,10,46,0.4);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:5px">Connections</div>
               <div style="display:flex;flex-direction:column;gap:5px">
-                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#e8e3f0"><svg width="24" height="8" style="flex-shrink:0"><line x1="0" y1="4" x2="24" y2="4" stroke="#7c3aed" stroke-width="1.5"/></svg>Direct exposure</div>
-                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#e8e3f0"><svg width="24" height="8" style="flex-shrink:0"><line x1="0" y1="4" x2="24" y2="4" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,3"/></svg>WOM spread</div>
-                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#e8e3f0"><svg width="24" height="8" style="flex-shrink:0"><line x1="0" y1="4" x2="24" y2="4" stroke="#3b82f6" stroke-width="1" opacity="0.6"/></svg>Same location</div>
-                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#e8e3f0"><svg width="24" height="8" style="flex-shrink:0"><line x1="0" y1="4" x2="24" y2="4" stroke="#10b981" stroke-width="1" opacity="0.6"/></svg>Same industry</div>
-                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#e8e3f0"><svg width="24" height="8" style="flex-shrink:0"><line x1="0" y1="4" x2="24" y2="4" stroke="#ec4899" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/></svg>Social circle</div>
+                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#1a0a2e"><svg width="24" height="8" style="flex-shrink:0"><line x1="0" y1="4" x2="24" y2="4" stroke="#7c3aed" stroke-width="1.5"/></svg>Direct exposure</div>
+                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#1a0a2e"><svg width="24" height="8" style="flex-shrink:0"><line x1="0" y1="4" x2="24" y2="4" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,3"/></svg>WOM spread</div>
+                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#1a0a2e"><svg width="24" height="8" style="flex-shrink:0"><line x1="0" y1="4" x2="24" y2="4" stroke="#3b82f6" stroke-width="1" opacity="0.8"/></svg>Same location</div>
+                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#1a0a2e"><svg width="24" height="8" style="flex-shrink:0"><line x1="0" y1="4" x2="24" y2="4" stroke="#10b981" stroke-width="1" opacity="0.8"/></svg>Same industry</div>
+                <div style="display:flex;align-items:center;gap:6px;font-family:GT-Planar;font-size:10px;color:#1a0a2e"><svg width="24" height="8" style="flex-shrink:0"><line x1="0" y1="4" x2="24" y2="4" stroke="#ec4899" stroke-width="1" stroke-dasharray="3,3" opacity="0.8"/></svg>Social circle</div>
               </div>
             </div>
           </div>
@@ -1264,8 +1264,8 @@ html, body {
         <!-- Audiences tab -->
         <div class="tab-pane" id="pane-audiences" style="padding:0;">
           <div style="padding:16px 20px 8px;border-bottom:1px solid rgba(124,58,237,0.12)">
-            <h2 style="font-family:AT-Realm-Bold;color:#a78bfa;font-size:17px;margin:0 0 3px">Audience Intelligence</h2>
-            <p style="font-family:GT-Planar;font-size:11px;color:rgba(232,227,240,0.4);margin:0">Simulation-identified primary audiences ranked by cascade power — your highest-value targets for media activation</p>
+            <h2 style="font-family:AT-Realm-Bold;color:#7c3aed;font-size:17px;margin:0 0 3px">Audience Intelligence</h2>
+            <p style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.5);margin:0">Simulation-identified primary audiences ranked by cascade power — your highest-value targets for media activation</p>
           </div>
           <div id="targets-list" style="padding:12px 16px;display:flex;flex-direction:column;gap:8px"></div>
         </div>
@@ -1761,22 +1761,22 @@ function showTooltip(event, d) {
         <span style="color:#f59e0b;font-weight:600">Super Connector</span><br>
         ${p.age} · ${p.occupation} · ${p.suburb}<br>
         <hr style="border:none;border-top:1px solid rgba(26,10,46,0.1);margin:5px 0">
-        <span style="font-size:10px;color:rgba(232,227,240,0.45)">WHY SUPER CONNECTOR</span><br>
+        <span style="font-size:10px;color:rgba(26,10,46,0.45);text-transform:uppercase;letter-spacing:0.05em">WHY SUPER CONNECTOR</span><br>
         ${p.social_influence_score>=8 ? '✦ Influence score '+p.social_influence_score+'/10<br>' : ''}
         ${(p.social_combustion_pct||0)>=72 ? '✦ Combustion '+p.social_combustion_pct+'% — highly likely to share<br>' : ''}
         ${womOut>0 ? '✦ Amplifies to '+womOut+' secondary reach nodes<br>' : ''}
         <hr style="border:none;border-top:1px solid rgba(26,10,46,0.1);margin:5px 0">
         <span style="color:#7c3aed;font-weight:600">Cascade Score: ${score}</span><br>
-        <span style="font-size:10px;color:rgba(232,227,240,0.4)">Click for full breakdown →</span>`
+        <span style="font-size:10px;color:rgba(26,10,46,0.5)">Click for full breakdown →</span>`
     } else if (d.isWOMOnly) {
       html = `<strong>${p.name}</strong>${p.age} · ${p.occupation}<br>${p.suburb}<br>
         <span style="color:#f59e0b;font-size:11px">◎ WOM-only reach</span><br>
-        <span style="font-size:10px;color:rgba(232,227,240,0.4)">Reached via word-of-mouth, not direct campaign exposure</span>`
+        <span style="font-size:10px;color:rgba(26,10,46,0.5)">Reached via word-of-mouth, not direct campaign exposure</span>`
     } else {
       const recallStr = rx ? `Recall ${rx.recall_strength}/5 · ${rx.emotional_response||''}` : 'No direct exposure'
       html = `<strong>${p.name}</strong>${p.age} · ${p.occupation}<br>${p.suburb}<br>
-        <span style="font-size:11px;color:rgba(232,227,240,0.5)">${recallStr}</span><br>
-        <span style="font-size:10px;color:rgba(232,227,240,0.35)">Cascade: ${p.cascadeScore||'—'} · Combustion: ${p.social_combustion_pct||50}%</span>`
+        <span style="font-size:11px;color:rgba(26,10,46,0.6)">${recallStr}</span><br>
+        <span style="font-size:10px;color:rgba(26,10,46,0.45)">Cascade: ${p.cascadeScore||'—'} · Combustion: ${p.social_combustion_pct||50}%</span>`
     }
   } else if (d.type === 'kpi') {
     const k = d.data
@@ -1859,8 +1859,8 @@ function showSCDetail(p, d) {
       ${p.photo ? `<img src="${p.photo}" style="width:56px;height:56px;border-radius:50%;object-fit:cover;border:2.5px solid #f59e0b;flex-shrink:0">` : ''}
       <div>
         <div style="font-family:AT-Realm-Bold;font-size:16px;color:#1a0a2e">${p.name}</div>
-        <div style="font-family:GT-Planar;font-size:12px;color:rgba(232,227,240,0.45);margin-top:2px">${p.age} · ${p.occupation}</div>
-        <div style="font-family:GT-Planar;font-size:12px;color:rgba(232,227,240,0.35)">${p.suburb}</div>
+        <div style="font-family:GT-Planar;font-size:12px;color:rgba(26,10,46,0.5);margin-top:2px">${p.age} · ${p.occupation}</div>
+        <div style="font-family:GT-Planar;font-size:12px;color:rgba(26,10,46,0.4)">${p.suburb}</div>
       </div>
     </div>
 
@@ -1873,7 +1873,7 @@ function showSCDetail(p, d) {
 
     <!-- Why super connector -->
     <div style="margin-bottom:16px">
-      <div style="font-family:AT-Realm-Bold;font-size:12px;color:#e8e3f0;margin-bottom:8px">Why This Person Is a Super Connector</div>
+      <div style="font-family:AT-Realm-Bold;font-size:12px;color:#1a0a2e;margin-bottom:8px">Why This Person Is a Super Connector</div>
       <ul style="font-family:GT-Planar;font-size:12px;color:rgba(26,10,46,0.7);line-height:1.7;padding-left:18px;margin:0">
         ${whyReasons.join('') || '<li>High aggregate score across influence, combustion, and recall metrics</li>'}
       </ul>
@@ -1881,7 +1881,7 @@ function showSCDetail(p, d) {
 
     <!-- Score breakdown -->
     <div style="background:rgba(124,58,237,0.04);border:1px solid rgba(124,58,237,0.15);border-radius:10px;padding:14px;margin-bottom:16px">
-      <div style="font-family:AT-Realm-Bold;font-size:11px;color:#e8e3f0;margin-bottom:10px">📊 Score Breakdown</div>
+      <div style="font-family:AT-Realm-Bold;font-size:11px;color:#1a0a2e;margin-bottom:10px">📊 Score Breakdown</div>
       ${[
         { label:'Social Influence', val: influenceContrib, total: 35, color:'#7c3aed', tip:`${p.social_influence_score||5}/10 score × 35% weight` },
         { label:'Brand Recall', val: recallContrib, total: 30, color:'#16a34a', tip:`${rx?.recall_strength||1}/5 strength × 30% weight` },
@@ -1893,10 +1893,10 @@ function showSCDetail(p, d) {
             <span style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.65)">${row.label}</span>
             <span style="font-family:AT-Realm-Bold;font-size:11px;color:${row.color}">${row.val} pts</span>
           </div>
-          <div style="height:5px;background:rgba(255,255,255,0.04);border-radius:3px;overflow:hidden">
+          <div style="height:5px;background:rgba(26,10,46,0.07);border-radius:3px;overflow:hidden">
             <div style="height:100%;width:${Math.min(100,(row.val/row.total)*100)}%;background:${row.color};border-radius:3px;transition:width 0.6s"></div>
           </div>
-          <div style="font-family:GT-Planar;font-size:9px;color:rgba(232,227,240,0.3);margin-top:2px">${row.tip}</div>
+          <div style="font-family:GT-Planar;font-size:9px;color:rgba(26,10,46,0.4);margin-top:2px">${row.tip}</div>
         </div>
       `).join('')}
     </div>
@@ -1912,24 +1912,24 @@ function showSCDetail(p, d) {
     <!-- WOM reach list -->
     ${womTargets.length > 0 ? `
     <div style="margin-bottom:16px">
-      <div style="font-family:AT-Realm-Bold;font-size:11px;color:#e8e3f0;margin-bottom:8px">🔗 Their WOM Reach (${womTargets.length} people)</div>
-      <div style="font-family:GT-Planar;font-size:11px;color:rgba(232,227,240,0.55);line-height:1.8">${womTargets.map(n=>`<span style="display:inline-block;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:20px;padding:2px 8px;margin:2px">${n}</span>`).join('')}</div>
+      <div style="font-family:AT-Realm-Bold;font-size:11px;color:#1a0a2e;margin-bottom:8px">🔗 Their WOM Reach (${womTargets.length} people)</div>
+      <div style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.7);line-height:1.8">${womTargets.map(n=>`<span style="display:inline-block;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);border-radius:20px;padding:2px 8px;margin:2px;color:#92400e">${n}</span>`).join('')}</div>
     </div>` : ''}
 
     <!-- Reaction quote -->
     ${rx?.quote ? `
     <div style="border-left:3px solid #7c3aed;padding:10px 14px;margin-bottom:16px;background:rgba(124,58,237,0.04);border-radius:0 8px 8px 0">
-      <div style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(232,227,240,0.35);margin-bottom:6px">Their reaction to the campaign</div>
-      <div style="font-family:GT-Planar;font-size:12px;color:#e8e3f0;line-height:1.7;font-style:italic">"${rx.quote}"</div>
-      <div style="font-family:GT-Planar;font-size:10px;color:rgba(232,227,240,0.35);margin-top:4px">${rx.emotional_response||''} · Recall ${rx.recall_strength}/5</div>
+      <div style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(26,10,46,0.4);margin-bottom:6px">Their reaction to the campaign</div>
+      <div style="font-family:GT-Planar;font-size:12px;color:#1a0a2e;line-height:1.7;font-style:italic">"${rx.quote}"</div>
+      <div style="font-family:GT-Planar;font-size:10px;color:rgba(26,10,46,0.45);margin-top:4px">${rx.emotional_response||''} · Recall ${rx.recall_strength}/5</div>
     </div>` : ''}
 
     <!-- Channel rec -->
     ${ch ? `
     <div style="background:rgba(22,163,74,0.05);border:1px solid rgba(22,163,74,0.2);border-radius:10px;padding:14px">
-      <div style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(232,227,240,0.35);margin-bottom:6px">Best Channel to Activate</div>
-      <div style="font-family:AT-Realm-Bold;font-size:13px;color:#e8e3f0;margin-bottom:4px">${ch.channels}</div>
-      <div style="font-family:GT-Planar;font-size:11px;color:rgba(232,227,240,0.5);margin-bottom:6px">${ch.reason}</div>
+      <div style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(26,10,46,0.4);margin-bottom:6px">Best Channel to Activate</div>
+      <div style="font-family:AT-Realm-Bold;font-size:13px;color:#1a0a2e;margin-bottom:4px">${ch.channels}</div>
+      <div style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.55);margin-bottom:6px">${ch.reason}</div>
       <div style="font-family:AT-Realm-Bold;font-size:12px;color:#16a34a">Predicted ROAS: ${ch.roas}×</div>
     </div>` : ''}
   `
@@ -2066,7 +2066,7 @@ function renderCascadeItem(c, personas) {
       </div>
       <span class="cascade-channel-name" style="color:${meta.color};background:${meta.bg};border-color:${meta.border};flex-shrink:0">${meta.icon} ${meta.label}</span>
     </div>
-    ${c.context ? `<div style="font-family:GT-Planar;font-size:10px;color:rgba(232,227,240,0.35);margin-bottom:5px;font-style:italic">📍 ${c.context}</div>` : ''}
+    ${c.context ? `<div style="font-family:GT-Planar;font-size:10px;color:rgba(26,10,46,0.4);margin-bottom:5px;font-style:italic">📍 ${c.context}</div>` : ''}
     <p class="cascade-msg">${c.message || ''}</p>
     <div class="influence-bar"><div style="width:${pct}%;background:linear-gradient(90deg,${meta.color},${meta.color}88)"></div></div>
   </div>`
@@ -2146,7 +2146,7 @@ function renderAudienceTargets(ranking, reactions) {
       <div style="flex:1;min-width:0">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px">
           <span style="font-family:AT-Realm-Bold;font-size:13px;color:#1a0a2e">${p.name}</span>
-          <span style="font-family:GT-Planar;font-size:11px;color:rgba(232,227,240,0.4)">${p.age} · ${p.occupation} · ${p.suburb}</span>
+          <span style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.5)">${p.age} · ${p.occupation} · ${p.suburb}</span>
         </div>
         <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">
           <span style="background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.2);border-radius:20px;padding:2px 7px;font-size:10px;font-family:AT-Realm-Regular;color:#7c3aed">⚡ ${p.cascadeScore} cascade</span>
@@ -2154,14 +2154,14 @@ function renderAudienceTargets(ranking, reactions) {
           <span style="background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2);border-radius:20px;padding:2px 7px;font-size:10px;font-family:AT-Realm-Regular;color:#16a34a">👁 recall ${rx?.recall_strength||1}/5</span>
         </div>
         <div style="background:rgba(124,58,237,0.04);border-radius:6px;padding:8px 10px">
-          <div style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(232,227,240,0.35);margin-bottom:3px">Best Channel to Reach</div>
-          <div style="font-family:AT-Realm-Bold;font-size:12px;color:#e8e3f0;margin-bottom:2px">${ch.channels}</div>
-          <div style="font-family:GT-Planar;font-size:11px;color:rgba(232,227,240,0.45);margin-bottom:4px">${ch.reason}</div>
+          <div style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(26,10,46,0.45);margin-bottom:3px">Best Channel to Reach</div>
+          <div style="font-family:AT-Realm-Bold;font-size:12px;color:#1a0a2e;margin-bottom:2px">${ch.channels}</div>
+          <div style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.55);margin-bottom:4px">${ch.reason}</div>
           <div style="font-family:AT-Realm-Bold;font-size:12px;color:#16a34a">Predicted ROAS: ${ch.roas}×</div>
         </div>
         <div style="margin-top:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
           <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(232,227,240,0.35)">Est. Addressable Universe</span>
+            <span style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(26,10,46,0.4)">Est. Addressable Universe</span>
             <span style="font-family:AT-Realm-Bold;font-size:12px;color:#1a0a2e">${estimateUniverse(p)}</span>
           </div>
           <button onclick="startInterview('${p.id}')" style="display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border:none;border-radius:20px;padding:6px 14px;font-family:AT-Realm-Bold;font-size:11px;cursor:pointer;transition:opacity 0.2s;flex-shrink:0" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
@@ -2269,10 +2269,10 @@ function renderMediaPlan(personas, reactions, stats, brief, cascadeRanking) {
       <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px">
         <div>
           <h2 style="font-family:AT-Realm-Bold;color:#7c3aed;font-size:20px;margin:0 0 4px">Recommended Media Strategy</h2>
-          <p style="font-family:GT-Planar;font-size:12px;color:rgba(232,227,240,0.45);margin:0">${brief.brand} · ${brief.objective||'Brand Awareness'} · AUD ${parseInt(brief.budget||75000).toLocaleString()} · ${brief.duration||'4 weeks'}</p>
+          <p style="font-family:GT-Planar;font-size:12px;color:rgba(26,10,46,0.5);margin:0">${brief.brand} · ${brief.objective||'Brand Awareness'} · AUD ${parseInt(brief.budget||75000).toLocaleString()} · ${brief.duration||'4 weeks'}</p>
         </div>
         <div style="background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.2);border-radius:8px;padding:10px 16px;text-align:center;flex-shrink:0">
-          <div style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(232,227,240,0.35);margin-bottom:2px">Predicted ROAS</div>
+          <div style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(26,10,46,0.45);margin-bottom:2px">Predicted ROAS</div>
           <div style="font-family:AT-Realm-Bold;font-size:24px;color:#16a34a">${stats?.roas||'2.4'}×</div>
         </div>
       </div>
@@ -2290,7 +2290,7 @@ function renderMediaPlan(personas, reactions, stats, brief, cascadeRanking) {
         </div>`).join('')}
       </div>
 
-      <h3 style="font-family:AT-Realm-Bold;font-size:14px;color:#e8e3f0;margin:0 0 12px">Primary Audience Segments</h3>
+      <h3 style="font-family:AT-Realm-Bold;font-size:14px;color:#1a0a2e;margin:0 0 12px">Primary Audience Segments</h3>
       <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px">
         ${activeSeg.map(([key, seg], i) => {
           const universe = UNIVERSE[key]
@@ -2324,7 +2324,7 @@ function renderMediaPlan(personas, reactions, stats, brief, cascadeRanking) {
         }).join('')}
       </div>
 
-      <h3 style="font-family:AT-Realm-Bold;font-size:14px;color:#e8e3f0;margin:0 0 12px">Recommended Budget Allocation</h3>
+      <h3 style="font-family:AT-Realm-Bold;font-size:14px;color:#1a0a2e;margin:0 0 12px">Recommended Budget Allocation</h3>
       <div style="background:#0f1013;border:1px solid rgba(124,58,237,0.15);border-radius:12px;padding:18px;margin-bottom:24px">
         <div style="display:flex;flex-direction:column;gap:8px">
           ${roasData.map(d => {
@@ -2357,8 +2357,8 @@ function renderMediaPlan(personas, reactions, stats, brief, cascadeRanking) {
           ].map(m=>`<div style="display:flex;gap:10px;align-items:flex-start">
             <span style="font-size:16px;flex-shrink:0">${m.icon}</span>
             <div>
-              <div style="font-family:AT-Realm-Bold;font-size:11px;color:#e8e3f0;margin-bottom:3px">${m.title}</div>
-              <div style="font-family:GT-Planar;font-size:10px;color:rgba(232,227,240,0.5);line-height:1.5">${m.body}</div>
+              <div style="font-family:AT-Realm-Bold;font-size:11px;color:#1a0a2e;margin-bottom:3px">${m.title}</div>
+              <div style="font-family:GT-Planar;font-size:10px;color:rgba(26,10,46,0.6);line-height:1.5">${m.body}</div>
             </div>
           </div>`).join('')}
         </div>
@@ -2422,7 +2422,7 @@ function renderResults(personas, reactions, cascades, stats, report, brief) {
       <div class="persona-quote">${r.quote ? '"' + r.quote.substring(0, 80) + (r.quote.length > 80 ? '...' : '') + '"' : ''}</div>
       <div class="skepticism-dots">${skepDots}</div>
       <div class="combustion-row" style="display:flex;align-items:center;gap:8px;margin-top:8px">
-        <span style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(232,227,240,0.4)">Social Combustion</span>
+        <span style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(26,10,46,0.45)">Social Combustion</span>
         <div style="flex:1;height:4px;background:rgba(26,10,46,0.08);border-radius:2px;overflow:hidden">
           <div style="height:100%;width:${p.social_combustion_pct||50}%;background:${combustionColor(p.social_combustion_pct||50)};border-radius:2px;transition:width 0.5s"></div>
         </div>
@@ -2451,8 +2451,8 @@ function renderResults(personas, reactions, cascades, stats, report, brief) {
           <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:12px;display:flex;gap:10px;align-items:center">
             ${p.photo ? `<img src="${p.photo}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #f59e0b;flex-shrink:0">` : ''}
             <div style="min-width:0">
-              <div style="font-family:AT-Realm-Bold;font-size:12px;color:#e8e3f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
-              <div style="font-family:GT-Planar;font-size:11px;color:rgba(232,227,240,0.45);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.occupation}</div>
+              <div style="font-family:AT-Realm-Bold;font-size:12px;color:#1a0a2e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
+              <div style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.occupation}</div>
               <div style="font-family:AT-Realm-Bold;font-size:11px;color:#d97706;margin-top:2px">🔥 ${p.social_combustion_pct||70}% combustion</div>
             </div>
           </div>
@@ -3382,13 +3382,13 @@ function renderSignalCard({ icon, label, value, sentiment, sub }) {
     neutral: 'rgba(26,10,46,0.03)',
     alert: 'rgba(245,158,11,0.08)'
   }[sentiment || 'neutral']
-  return `<div style="background:${sentimentBg};border:1px solid ${sentimentColor}22;border-radius:8px;padding:10px 10px 8px">
+  return `<div style="background:${sentimentBg};border:1px solid ${sentimentColor}33;border-radius:8px;padding:10px 10px 8px">
     <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
       <span style="font-size:14px">${icon}</span>
-      <span style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(232,227,240,0.35)">${label}</span>
+      <span style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(26,10,46,0.45)">${label}</span>
     </div>
-    <div style="font-family:AT-Realm-Bold;font-size:13px;color:#e8e3f0;line-height:1.3">${value}</div>
-    ${sub ? `<div style="font-family:GT-Planar;font-size:10px;color:rgba(232,227,240,0.45);margin-top:3px;line-height:1.4">${sub}</div>` : ''}
+    <div style="font-family:AT-Realm-Bold;font-size:13px;color:#1a0a2e;line-height:1.3">${value}</div>
+    ${sub ? `<div style="font-family:GT-Planar;font-size:10px;color:rgba(26,10,46,0.55);margin-top:3px;line-height:1.4">${sub}</div>` : ''}
   </div>`
 }
 
