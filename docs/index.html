@@ -1386,7 +1386,10 @@ html, body {
 <div id="api-modal">
   <div class="modal-box">
     <div class="modal-title">API Configuration</div>
-    <div class="modal-sub">Enter your OpenAI API key to enable the simulation engine. Keys are stored in localStorage and never sent anywhere except OpenAI.</div>
+    <div class="modal-sub">Enter your OpenAI API key to power the simulation. Stored in browser localStorage only — never sent anywhere except directly to OpenAI.</div>
+    <div style="background:rgba(124,58,237,0.05);border:1px solid rgba(124,58,237,0.15);border-radius:6px;padding:8px 10px;margin-bottom:10px;font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.65)">
+      Get a key at <a href="https://platform.openai.com/api-keys" target="_blank" style="color:#7c3aed">platform.openai.com/api-keys</a> — needs <strong>gpt-4o-mini</strong> access. Key will be validated before saving.
+    </div>
     <label class="form-label" for="api-key-input">OpenAI API Key</label>
     <input id="api-key-input" type="password" class="form-input" placeholder="sk-..." style="margin-bottom:4px;">
     <div class="modal-actions">
@@ -2162,9 +2165,32 @@ function openApiModal() {
   document.getElementById('api-modal').classList.add('open')
 }
 function closeApiModal() { document.getElementById('api-modal').classList.remove('open') }
-function saveApiKey() {
+async function saveApiKey() {
   const v = document.getElementById('api-key-input').value.trim()
-  if (v) { localStorage.setItem('lumos_openai_key', v); updateKeyStatus(); closeApiModal() }
+  if (!v) return
+  const btn = document.querySelector('.modal-btn-primary')
+  const origText = btn ? btn.textContent : 'Save Key'
+  if (btn) { btn.textContent = 'Validating…'; btn.disabled = true }
+  const result = await validateApiKey(v)
+  if (btn) { btn.textContent = origText; btn.disabled = false }
+  if (!result.ok) {
+    const errEl = document.getElementById('api-key-error') || (() => {
+      const el = document.createElement('div')
+      el.id = 'api-key-error'
+      el.style.cssText = 'color:#dc2626;font-family:GT-Planar;font-size:12px;margin-top:8px;padding:8px 10px;background:rgba(220,38,38,0.06);border-radius:6px;border:1px solid rgba(220,38,38,0.2)'
+      document.getElementById('api-key-input').insertAdjacentElement('afterend', el)
+      return el
+    })()
+    errEl.textContent = '⚠️ ' + result.error
+    return
+  }
+  const errEl = document.getElementById('api-key-error')
+  if (errEl) errEl.remove()
+  localStorage.setItem('lumos_openai_key', v)
+  updateKeyStatus()
+  closeApiModal()
+  // Re-init world context with the new valid key
+  initWorldContext()
 }
 function clearApiKey() {
   localStorage.removeItem('lumos_openai_key')
@@ -2179,14 +2205,23 @@ async function callLLM(messages, expectJson = true, maxTokens = null) {
   const body = { model: 'gpt-4o-mini', messages, temperature: 0.85 }
   if (expectJson) body.response_format = { type: 'json_object' }
   if (maxTokens) body.max_tokens = maxTokens
-  const res = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  })
+  let res
+  try {
+    res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    })
+  } catch (netErr) {
+    throw new Error('Cannot reach OpenAI API. Check: (1) your internet connection, (2) VPN or firewall not blocking api.openai.com, (3) browser extensions like uBlock that may block API calls.')
+  }
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
-    throw new Error(err.error?.message || `API error ${res.status}`)
+    const msg = err.error?.message || `API error ${res.status}`
+    if (res.status === 401) throw new Error('Invalid API key. Go to platform.openai.com → API Keys and create a new key.')
+    if (res.status === 429) throw new Error('OpenAI rate limit or quota exceeded. Check your usage at platform.openai.com/usage.')
+    if (res.status === 400 && msg.includes('json_object')) throw new Error('Model does not support JSON mode. Try a different model in your account.')
+    throw new Error(msg)
   }
   const data = await res.json()
   const content = data.choices[0].message.content
@@ -2195,6 +2230,20 @@ async function callLLM(messages, expectJson = true, maxTokens = null) {
     catch { return JSON.parse(content.replace(/```json\n?|\n?```/g, '')) }
   }
   return content
+}
+
+async function validateApiKey(key) {
+  try {
+    const res = await fetch('https://api.openai.com/v1/models', {
+      headers: { 'Authorization': `Bearer ${key}` }
+    })
+    if (res.status === 401) return { ok: false, error: 'Invalid API key — check it at platform.openai.com/api-keys' }
+    if (res.status === 429) return { ok: false, error: 'API key valid but rate limited / quota exceeded' }
+    if (!res.ok) return { ok: false, error: `API error ${res.status}` }
+    return { ok: true }
+  } catch(e) {
+    return { ok: false, error: 'Cannot reach OpenAI — check network/VPN/firewall' }
+  }
 }
 
 // ===== FORM =====
