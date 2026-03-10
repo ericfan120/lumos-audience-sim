@@ -1668,8 +1668,8 @@ async function addCampaignNode(brief) {
   // Add pulse class after a tick
   setTimeout(() => {
     svgG && svgG.selectAll('.node-campaign').classed('node-campaign', true)
-  }, 500)
-  await sleep(300)
+  }, 300)
+  await sleep(50)
 }
 
 function combustionColor(pct) {
@@ -1961,11 +1961,12 @@ function clearApiKey() {
 }
 
 // ===== LLM =====
-async function callLLM(messages, expectJson = true) {
+async function callLLM(messages, expectJson = true, maxTokens = null) {
   const key = localStorage.getItem('lumos_openai_key')
   if (!key) throw new Error('No API key set. Click "Set API Key" to continue.')
   const body = { model: 'gpt-4o-mini', messages, temperature: 0.85 }
   if (expectJson) body.response_format = { type: 'json_object' }
+  if (maxTokens) body.max_tokens = maxTokens
   const res = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
@@ -2673,7 +2674,7 @@ async function generateAllPersonas(brief, sysPrompt) {
 Brand: ${brief.brand}. Message: "${brief.message}". Location: ${brief.location}.
 Return JSON: {"personas":[{"id":"p${b*10+1}","name":"...","age":28,"gender":"female","occupation":"...","suburb":"...","commute":"...","lifestyle_traits":["...","...","..."],"ad_skepticism":5,"social_influence_score":7,"primary_channel":"OOH/DOOH|Social|TV/CTV|Digital|Radio|Search","social_combustion_pct":65},...]}
 IDs p${b*10+1} to p${b*10+10}. Vary ages 18-70, suburbs across AU cities.` }
-    ]).then(r => ({ b, personas: r.personas || [] }))
+    ], true, 800).then(r => ({ b, personas: r.personas || [] }))
   )
 
   const batchResults = await Promise.all(batchPromises)
@@ -2711,7 +2712,7 @@ async function simulateAllExposure(personas, brief, sysPrompt) {
 Brand: ${brief.brand}. Objective: ${brief.objective}. Message: "${brief.message}". Channel mix: OOH/DOOH, Social, Digital, Search, TV.
 Personas: ${JSON.stringify(batch.map(p=>({id:p.id,name:p.name,age:p.age,occupation:p.occupation,ad_skepticism:p.ad_skepticism,primary_channel:p.primary_channel})))}.
 Return JSON: {"reactions":[{"persona_id":"p1","noticed":true,"recall_strength":3,"emotional_response":"curious","likely_action":"searches brand","quote":"..."},...]}` }
-    ]).then(r => r.reactions || [])
+    ], true, 700).then(r => r.reactions || [])
   })
 
   const batchResults = await Promise.all(batchPromises)
@@ -3162,58 +3163,56 @@ async function runSimulation() {
     const reactions = await simulateAllExposure(personas, brief, dynamicSystemPrompt)
     window._simReactions = reactions
 
-    // Step 3: social cascade (15 interactions)
-    _setProgress(68, 'Cascade Analysis', 'Computing social cascade + super connector detection...')
+    // Step 3: cascade + report IN PARALLEL (both only need personas + reactions)
+    _setProgress(68, 'Cascade + Report', 'Running social cascade analysis and report generation simultaneously...')
     _addLog('CASCADE', 'Bass Diffusion model applied · Computing cascade power scores', 'info')
-    const cascadePersonaCtx = personas.slice(0, 20).map(p => {
+    _addLog('RPT', 'Synthesising prediction report in parallel...', 'info')
+
+    const cascadePersonaCtx = personas.slice(0, 12).map(p => {
       const rx = reactions.find(r => r.persona_id === p.id) || {}
       return {
-        id: p.id, name: p.name, age: p.age, occupation: p.occupation,
-        suburb: p.suburb, lifestyle_traits: p.lifestyle_traits,
+        id: p.id, name: p.name, age: p.age, occupation: p.occupation, suburb: p.suburb,
         ad_skepticism: p.ad_skepticism, social_influence_score: p.social_influence_score,
         social_combustion_pct: p.social_combustion_pct,
-        emotional_response: rx.emotional_response, recall_strength: rx.recall_strength, quote: rx.quote
+        emotional_response: rx.emotional_response, recall_strength: rx.recall_strength
       }
     })
-    const r3 = await callLLM([
+
+    const superConnectors = personas.filter(p => isSuper(p))
+    const weakExposed = personas.filter(p => {
+      const rx = reactions.find(r => r.persona_id === p.id)
+      return !rx || rx.recall_strength <= 1
+    })
+
+    const cascadePromise = callLLM([
       { role:'system', content: dynamicSystemPrompt },
-      { role:'user', content: `You are simulating 15 authentic, fully in-character social word-of-mouth interactions between real Australian consumers who were exposed to this campaign:
+      { role:'user', content: `Simulate 8 authentic social WOM interactions between Australian consumers exposed to this campaign.
+Brand: ${brief.brand}. Message: "${brief.message}". Location: ${brief.location}.
+Personas: ${JSON.stringify(cascadePersonaCtx)}
+Rules: write in-character using their job/suburb/age. Reference the brand + location. Vary channels. High combustion_pct = enthusiastic, high ad_skepticism = sceptical. 2-3 sentences per message.
+Return JSON: {"cascades":[{"from_name":"...","to_name":"...","channel":"whatsapp_group|instagram_dm|tiktok_comment|linkedin|text_message|in_person","context":"specific situation e.g. WhatsApp group: Young Mums Surry Hills","message":"...","influence_delta":0.7},...]} with exactly 8 entries.` }
+    ], true, 900)
 
-BRAND: ${brief.brand}
-MESSAGE: "${brief.message}"
-LOCATION: ${brief.location}
-OBJECTIVE: ${brief.objective || 'Brand Awareness'}
+    const reportPromise = callLLM([
+      { role:'system', content: dynamicSystemPrompt },
+      { role:'user', content: `Generate a concise omni-channel campaign prediction report.
+Brand: ${brief.brand}, Objective: ${brief.objective||"Awareness"}, Budget: AUD ${brief.budget}, Duration: ${brief.duration}, Location: ${brief.location}.
+Reactions sample: ${JSON.stringify(reactions.slice(0,8))}.
+Super connectors: ${superConnectors.length}. WOM secondary reach: ${superConnectors.length * 3} contacts.
+Return JSON: {"report":"## Executive Summary\n...markdown...","recall_pct":74,"intent_pct":31,"weekly_reach":125000,"roas":2.4}
+Sections (keep each brief — 2-3 sentences max per section): Executive Summary, Audience Reach Analysis, Brand Recall Forecast, Purchase Intent by Segment, Social Amplification, Omni-Channel ROAS Prediction (AU benchmarks), Budget Recommendations, Next Steps.` }
+    ], true, 1400)
 
-PERSONA DATA (each person is a fully autonomous agent — use their actual traits, reactions, and life context):
-${JSON.stringify(cascadePersonaCtx)}
+    const [r3, rpt] = await Promise.all([cascadePromise, reportPromise])
 
-RULES — each interaction must follow these principles:
-- 100% IN CHARACTER: write as this specific person using their actual job, suburb, age, lifestyle traits and personality
-- Reference the SPECIFIC brand ("${brief.brand}"), the actual campaign message, and the real location where they saw/heard it
-- Include authentic human behaviour: high ad_skepticism = doubt/sarcasm; high social_combustion_pct = enthusiastic sharing; FOMO, brand conflicts, personal relevance to their life situation
-- Feel like what this actual person would genuinely say to another specific person in a real moment — not generic ad talk
-- BAD: "Have you seen that ad? Looks cool." GOOD: "Was at ${brief.location} yesterday and saw the ${brief.brand} thing — actually made me stop. I've been putting this off for ages and the offer is genuinely hard to ignore for someone in my situation."
-- Add a context field: the specific platform situation (e.g. "WhatsApp group: Young Mums Surry Hills", "Instagram DM after seeing story", "LinkedIn comment on colleague's post", "Text to partner after gym session", "In person at Bondi coffee queue")
-- Vary channels: whatsapp_group, instagram_dm, instagram_story, tiktok_comment, linkedin, text_message, in_person, facebook_group
-- High social_combustion_pct personas should spread further and more enthusiastically; high ad_skepticism personas should express doubt or ask probing questions
-- Messages should be 2–4 sentences — real, specific, and human
-
-Return JSON: {"cascades":[{"from_name":"...","to_name":"...","channel":"whatsapp_group|instagram_dm|instagram_story|tiktok_comment|linkedin|text_message|in_person|facebook_group","context":"specific platform situation","message":"full authentic in-character message","influence_delta":0.7},...]} with exactly 15 entries.` }
-    ])
     const cascades = r3.cascades || []
     window._simCascades = cascades
     for (const c of cascades) {
       const fp = personas.find(p=>p.name===c.from_name)
       const tp = personas.find(p=>p.name===c.to_name)
       if (fp&&tp) { addCascadeEdge(c,fp.id,tp.id); terminalLog(`[cascade] ${c.from_name} → ${c.to_name} via ${c.channel}`) }
-      await sleep(30)
     }
     // Step 3b: WOM reach
-    const superConnectors = personas.filter(p => isSuper(p))
-    const weakExposed = personas.filter(p => {
-      const rx = reactions.find(r => r.persona_id === p.id)
-      return !rx || rx.recall_strength <= 1
-    })
     window._simWOM = []
     for (const sc of superConnectors.slice(0, 5)) {
       const targets = weakExposed.slice().sort(() => Math.random() - 0.5).slice(0, 3)
@@ -3221,14 +3220,11 @@ Return JSON: {"cascades":[{"from_name":"...","to_name":"...","channel":"whatsapp
         window._simWOM.push({ from: sc.id, to: target.id, channel: 'word_of_mouth' })
         addWOMEdge(sc, target)
         terminalLog(`[WOM] ${sc.name} → ${target.name}`)
-        await sleep(20)
       }
     }
-    const superCount = personas.filter(p => isSuper(p)).length
+    const superCount = superConnectors.length
     _setStat('super', superCount)
     _addLog('CASCADE', superCount + ' super connectors identified via influence + combustion + WOM scoring', superCount > 0 ? 'ok' : 'warn')
-    _addLog('WOM', 'Mapping word-of-mouth propagation graph...', 'info')
-    _setProgress(82, 'WOM Propagation', 'Social graph edges computed')
     _addLog('WOM', 'WOM secondary reach: ' + (window._simWOM||[]).length + ' additional contacts identified', 'ok')
     _addLog('MMM', 'Running Media Mix Modelling — Hill saturation · adstock decay...', 'info')
     _setProgress(92, 'MMM Optimisation', 'Channel ROAS frontier computed')
@@ -3239,19 +3235,6 @@ Return JSON: {"cascades":[{"from_name":"...","to_name":"...","channel":"whatsapp
       if (n && (!rx || rx.recall_strength <= 1)) n.isWOMOnly = true
     })
     updateGraph()
-
-    // Step 4: report
-    _addLog('RPT', 'Synthesising prediction report...', 'info')
-    const rpt = await callLLM([
-      { role:'system', content: dynamicSystemPrompt },
-      { role:'user', content: `Generate a comprehensive omni-channel media campaign prediction report.
-Brand: ${brief.brand}, Objective: ${brief.objective||"Awareness"}, Budget: AUD ${brief.budget}, Duration: ${brief.duration}, Location: ${brief.location}.
-Sample reactions (${reactions.length} total): ${JSON.stringify(reactions.slice(0,10))}.
-Cascades: ${JSON.stringify(cascades.slice(0,8))}.
-WOM reach: ${(window._simWOM||[]).length} secondary exposures via ${personas.filter(p=>isSuper(p)).length} super connectors.
-Return JSON: {"report":"## Executive Summary\n...full markdown...","recall_pct":74,"intent_pct":31,"weekly_reach":125000,"roas":2.4}
-Sections: Executive Summary, Audience Reach Analysis, Brand Recall Forecast (table by segment), Purchase Intent by Segment (table), Social Amplification, Word-of-Mouth Amplification (who are the super connectors, WOM reach multiplier, estimated secondary reach), Omni-Channel ROAS Prediction (with AU benchmarks for OOH/Social/Search/TV/Digital/Radio), Budget Recommendations, Next Steps.` }
-    ])
     window._simStats = { recall_pct: rpt.recall_pct, intent_pct: rpt.intent_pct, weekly_reach: rpt.weekly_reach, roas: rpt.roas }
     window._simReport = rpt.report
     addKPINodes(window._simStats)
