@@ -2314,10 +2314,43 @@ async function callLLM(messages, expectJson = true, maxTokens = null) {
   const data = await res.json()
   const content = data.choices[0].message.content
   if (expectJson) {
-    try { return JSON.parse(content) }
-    catch { return JSON.parse(content.replace(/```json\n?|\n?```/g, '')) }
+    const parsed = safeParseJSON(content)
+    if (parsed !== null) return parsed
+    throw new Error('Could not parse model response as JSON. The response may have been cut off — try again.')
   }
   return content
+}
+
+function safeParseJSON(str) {
+  const s = (str || '').replace(/```json\n?|\n?```/g, '').trim()
+  // 1. Clean parse
+  try { return JSON.parse(s) } catch(e) {}
+  // 2. Try repairing a truncated response by closing at the last complete object
+  try {
+    // Find the last }, or } before truncation
+    const lastObjEnd = Math.max(s.lastIndexOf('},'), s.lastIndexOf('}\n'))
+    if (lastObjEnd > 10) {
+      let trunc = s.slice(0, lastObjEnd + 1)
+      // Count unclosed [ and { to know what to close
+      let opens = 0, openArr = 0, inStr = false, esc = false
+      for (const ch of trunc) {
+        if (esc) { esc = false; continue }
+        if (ch === '\\' && inStr) { esc = true; continue }
+        if (ch === '"') { inStr = !inStr; continue }
+        if (!inStr) {
+          if (ch === '{') opens++
+          else if (ch === '}') opens--
+          else if (ch === '[') openArr++
+          else if (ch === ']') openArr--
+        }
+      }
+      let repaired = trunc
+      for (let i = 0; i < openArr; i++) repaired += ']'
+      for (let i = 0; i < opens; i++) repaired += '}'
+      return JSON.parse(repaired)
+    }
+  } catch(e) {}
+  return null
 }
 
 async function validateApiKey(key) {
@@ -3120,7 +3153,7 @@ async function generateAllPersonas(brief, sysPrompt) {
 Brand: ${brief.brand}. Message: "${brief.message}". Location: ${brief.location}.
 Return JSON: {"personas":[{"id":"p${b*10+1}","name":"...","age":28,"gender":"female","occupation":"...","suburb":"...","commute":"...","lifestyle_traits":["...","...","..."],"ad_skepticism":5,"social_influence_score":7,"primary_channel":"OOH/DOOH|Social|TV/CTV|Digital|Radio|Search","social_combustion_pct":65},...]}
 IDs p${b*10+1} to p${b*10+10}. Vary ages 18-70, suburbs across AU cities.` }
-    ], true, 800).then(r => ({ b, personas: r.personas || [] }))
+    ], true, 2000).then(r => ({ b, personas: r.personas || [] }))
   )
 
   const batchResults = await Promise.all(batchPromises)
@@ -3159,7 +3192,7 @@ async function simulateAllExposure(personas, brief, sysPrompt) {
 Brand: ${brief.brand}. Objective: ${brief.objective}. Message: "${brief.message}". Channel mix: OOH/DOOH, Social, Digital, Search, TV.
 Personas: ${JSON.stringify(batch.map(p=>({id:p.id,name:p.name,age:p.age,occupation:p.occupation,ad_skepticism:p.ad_skepticism,primary_channel:p.primary_channel})))}.
 Return JSON: {"reactions":[{"persona_id":"p1","noticed":true,"recall_strength":3,"emotional_response":"curious","likely_action":"searches brand","quote":"..."},...]}` }
-    ], true, 700).then(r => r.reactions || [])
+    ], true, 1200).then(r => r.reactions || [])
   })
 
   const batchResults = await Promise.all(batchPromises)
