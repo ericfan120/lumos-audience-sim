@@ -1080,17 +1080,17 @@ html, body {
     <div id="left-panel">
       <div id="left-scroll">
         <div id="process-steps" style="display:flex;gap:0;margin-bottom:20px;border-radius:8px;overflow:hidden;border:1px solid rgba(26,10,46,0.08)">
-          <div style="flex:1;padding:10px 8px;background:rgba(124,58,237,0.08);text-align:center">
-            <div style="font-family:AT-Realm-Bold;font-size:10px;color:#7c3aed">1 BRIEF</div>
-            <div style="font-family:GT-Planar;font-size:9px;color:rgba(26,10,46,0.45)">Define campaign</div>
+          <div id="pstep-1" style="flex:1;padding:10px 8px;background:rgba(124,58,237,0.10);text-align:center;transition:all 0.3s;border:1px solid rgba(124,58,237,0.35)">
+            <div style="font-family:AT-Realm-Bold;font-size:10px;"><span class="pstep-num" style="color:#7c3aed">1</span> <span class="pstep-lbl" style="color:#7c3aed">BRIEF</span></div>
+            <div class="pstep-sub" style="font-family:GT-Planar;font-size:9px;color:rgba(124,58,237,0.65)">Define campaign</div>
           </div>
-          <div style="flex:1;padding:10px 8px;background:rgba(26,10,46,0.03);text-align:center;border-left:1px solid rgba(26,10,46,0.08)">
-            <div style="font-family:AT-Realm-Bold;font-size:10px;color:rgba(26,10,46,0.4)">2 SIMULATE</div>
-            <div style="font-family:GT-Planar;font-size:9px;color:rgba(26,10,46,0.35)">50 AI agents</div>
+          <div id="pstep-2" style="flex:1;padding:10px 8px;background:rgba(26,10,46,0.03);text-align:center;border-left:1px solid rgba(26,10,46,0.08);transition:all 0.3s">
+            <div style="font-family:AT-Realm-Bold;font-size:10px;"><span class="pstep-num" style="color:rgba(26,10,46,0.3)">2</span> <span class="pstep-lbl" style="color:rgba(26,10,46,0.35)">SIMULATE</span></div>
+            <div class="pstep-sub" style="font-family:GT-Planar;font-size:9px;color:rgba(26,10,46,0.25)">50 AI agents</div>
           </div>
-          <div style="flex:1;padding:10px 8px;background:rgba(26,10,46,0.03);text-align:center;border-left:1px solid rgba(26,10,46,0.08)">
-            <div style="font-family:AT-Realm-Bold;font-size:10px;color:rgba(26,10,46,0.4)">3 STRATEGY</div>
-            <div style="font-family:GT-Planar;font-size:9px;color:rgba(26,10,46,0.35)">Media plan output</div>
+          <div id="pstep-3" style="flex:1;padding:10px 8px;background:rgba(26,10,46,0.03);text-align:center;border-left:1px solid rgba(26,10,46,0.08);transition:all 0.3s">
+            <div style="font-family:AT-Realm-Bold;font-size:10px;"><span class="pstep-num" style="color:rgba(26,10,46,0.3)">3</span> <span class="pstep-lbl" style="color:rgba(26,10,46,0.35)">STRATEGY</span></div>
+            <div class="pstep-sub" style="font-family:GT-Planar;font-size:9px;color:rgba(26,10,46,0.25)">Media plan output</div>
           </div>
         </div>
         <div id="panel-title">Media Campaign Brief</div>
@@ -1141,6 +1141,7 @@ html, body {
             <div id="alloc-total" style="font-size:11px;text-align:right;margin-top:6px;color:var(--accent)">Total: <span id="alloc-sum">100</span>%</div>
           </div>
           <button type="button" id="run-btn" onclick="runSimulation()">⚡ Run Simulation</button>
+          <button type="button" id="demo-btn" onclick="loadDemo()" style="width:100%;margin-top:8px;padding:10px;background:rgba(124,58,237,0.06);border:1px dashed rgba(124,58,237,0.3);border-radius:8px;font-family:AT-Realm-Regular;font-size:12px;color:#7c3aed;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='rgba(124,58,237,0.12)'" onmouseout="this.style.background='rgba(124,58,237,0.06)'">▶ Try Demo — Canva Pro AU Campaign</button>
         </form>
 
         <!-- PROGRESS PANEL -->
@@ -1449,6 +1450,218 @@ INFLUENCER & SUPER CONNECTOR ARCHETYPES — ensure exactly 5 of the 50 personas 
 4. FINTOK / FINANCE CREATOR: personal finance + investing, TikTok + YouTube, 22-35, social_combustion_pct:75-85, influence:8-9, trusted maven archetype, high sharing intent
 5. PROPERTY/LIFESTYLE CREATOR: home renovation or real estate investing, Instagram + TikTok, 28-45, social_combustion_pct:70-80, influence:7-8
 For each: set primary_channel to their dominant platform, ensure social_combustion_pct and influence within stated ranges, occupation reflects creator role.`
+
+// ===== LUMOS ID =====
+function generateLumosId() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  let id = 'LUMOS-'
+  for (let i = 0; i < 8; i++) id += chars[Math.floor(Math.random() * chars.length)]
+  return id
+}
+
+// ===== SUBURB PERSONALITY VIBES =====
+const SUBURB_VIBES = {
+  'Surry Hills':   'inner-city creative quarter, heavy coffee culture, gentrified terraces, indie music and arts scene',
+  'Bondi':         'beach lifestyle, fitness culture, Instagram aesthetic, proud locals mixed with tourists',
+  'Newtown':       'alternative hub, LGBTQ+ community, vegan cafes, vintage shops, strongly progressive politics',
+  'Parramatta':    'multicultural, fast-growing suburban centre, family-oriented, strong community roots, rapidly changing',
+  'Ultimo':        'student and young professional belt, near UTS and ABC, diverse and fast-paced apartment living',
+  'Penrith':       'western Sydney pride, working-class identity, local loyalty, Panthers heartland, practical and direct',
+  'Cremorne':      'leafy lower north shore, quiet professional families, heritage streets, understated affluence',
+  'Wollongong':    'steel city identity, coastal pride, close-knit community, referred to locally as "the Gong"',
+  'North Sydney':  'corporate commuter hub, suits and coffee queues, CBD-adjacent, busy and transactional',
+  'Chatswood':     'multicultural north shore, high-density living, Asian food culture, professional families',
+  'Manly':         'beachside northern beaches, outdoorsy lifestyle, ferry commuters, relaxed but ambitious professionals',
+  'Redfern':       'rapidly gentrifying inner-south, strong Indigenous history, young creatives moving in, cultural tension',
+  'South Yarra':   'upscale Melbourne, fashion-conscious, top restaurants, young professionals with disposable income',
+  'Fitzroy':       'Melbourne creative hub, progressive politics, bar and gallery culture, makers and artists',
+  'St Kilda':      'beachside Melbourne, young and eclectic, gentrifying, bar and music scene, eclectic mix',
+  'Richmond':      'Melbourne footy heartland, pub culture, multicultural pockets, young families, high density',
+  'Collingwood':   'Melbourne hipster ground zero, warehouses turned studios, strong opinions about everything',
+  'Prahran':       'Melbourne inner-south, fashion and nightlife, LGBTQ+ friendly, young professionals',
+  'New Farm':      'Brisbane boutique suburb, leafy, young professionals and creatives, strong cafe culture',
+  'Fortitude Valley': 'Brisbane entertainment district, music scene, diverse and urban, nightlife-driven',
+  'West End':      'Brisbane alternative quarter, multicultural, markets, students and young families',
+  'Northbridge':   'Perth nightlife hub, young crowd, multicultural, strong cafe culture',
+  'Fremantle':     'Perth port city, bohemian, heritage architecture, markets, arts and music community',
+  'Subiaco':       'Perth upscale inner-suburb, professionals and young families, great restaurants',
+}
+function getSuburbVibe(suburb) {
+  if (!suburb) return 'a typical Australian suburb'
+  const key = Object.keys(SUBURB_VIBES).find(k => suburb.includes(k))
+  return key ? SUBURB_VIBES[key] : `the ${suburb} area`
+}
+
+// ===== PERSONA VOICE ARCHETYPES =====
+function getPersonaVoice(p) {
+  const age = p.age || 30
+  const occ = (p.occupation || '').toLowerCase()
+  let ageVoice, occVoice
+  if (age <= 24)      ageVoice = 'Gen Z — uses "lowkey", "no cap", "it\'s giving", "honestly though", "kinda obsessed", trailing-off sentences, expressive but low-effort phrasing'
+  else if (age <= 32) ageVoice = 'Younger millennial — casual and self-aware, uses "honestly", "I mean", "look", mixes cynicism with genuine excitement, comfortable with irony'
+  else if (age <= 42) ageVoice = 'Elder millennial — measured but warm, uses "to be fair", "the thing is", "look I get it", direct, not trying to sound cool'
+  else if (age <= 54) ageVoice = 'Gen X — direct, no-nonsense, mildly sardonic, doesn\'t over-explain, uses "yeah look", "fair enough", "I suppose", values authenticity'
+  else                ageVoice = 'Boomer — measured and reflective, full sentences, uses "to be honest", "I think what they\'re trying to say is", weighs things carefully before answering'
+  if (occ.match(/engineer|developer|software|tech|data|analyst/))
+    occVoice = 'analytical — precise, evidence-minded, has clear opinions about quality and execution, light skepticism toward marketing claims'
+  else if (occ.match(/nurse|doctor|physio|health|midwife|allied/))
+    occVoice = 'caring and practical — relates everything to impact on people, time-poor so values efficiency, genuine warmth but very direct'
+  else if (occ.match(/teacher|educator|academic|professor/))
+    occVoice = 'thoughtful and measured — explains themselves well, values substance over style, mild frustration with oversimplification'
+  else if (occ.match(/market|brand|creative|design|content|media|PR/))
+    occVoice = 'industry-aware — notices the creative choices, has opinions about the ad execution itself, uses brand vocabulary naturally without being snobbish'
+  else if (occ.match(/manager|director|exec|ceo|founder|owner/))
+    occVoice = 'strategic thinker — evaluates ROI instinctively, talks about decisions and value, busy-person energy, gets to the point'
+  else if (occ.match(/electrician|plumber|builder|tradesman|carpenter|mechanic/))
+    occVoice = 'straight-shooter — direct, no jargon, tells it like it is, not easily impressed, values practicality, trust and a fair deal'
+  else if (occ.match(/retail|hospitality|barista|cafe|server|waiter/))
+    occVoice = 'people-person — warm and chatty, lots of lived observation about what people buy and say, empathetic and grounded'
+  else if (occ.match(/student/))
+    occVoice = 'budget-conscious student energy — weighs value carefully, socially very active, strongly peer-driven decisions'
+  else if (occ.match(/influencer|creator|tiktoker|youtuber|streamer/))
+    occVoice = 'content-native — evaluates everything through shareability and aesthetic lens, highly expressive, thinks about audiences instinctively'
+  else if (occ.match(/retired|retirement/))
+    occVoice = 'experienced and deliberate — draws on life history, takes time to form opinions, resistant to hype but open-minded if given a reason'
+  else
+    occVoice = 'everyday Australian — practical, down-to-earth, balanced perspective, calls it as they see it'
+  return { ageVoice, occVoice }
+}
+
+// ===== 3-STEP WIZARD =====
+function setProcessStep(n) {
+  for (let i = 1; i <= 3; i++) {
+    const el = document.getElementById('pstep-' + i)
+    if (!el) continue
+    const numEl = el.querySelector('.pstep-num')
+    const lblEl = el.querySelector('.pstep-lbl')
+    const subEl = el.querySelector('.pstep-sub')
+    if (i < n) {
+      el.style.background = 'rgba(22,163,74,0.08)'
+      el.style.borderColor = 'rgba(22,163,74,0.3)'
+      if (numEl) { numEl.textContent = '✓'; numEl.style.color = '#16a34a' }
+      if (lblEl) lblEl.style.color = '#16a34a'
+      if (subEl) subEl.style.color = 'rgba(22,163,74,0.7)'
+    } else if (i === n) {
+      el.style.background = 'rgba(124,58,237,0.10)'
+      el.style.borderColor = 'rgba(124,58,237,0.35)'
+      if (numEl) { numEl.textContent = String(i); numEl.style.color = '#7c3aed' }
+      if (lblEl) lblEl.style.color = '#7c3aed'
+      if (subEl) subEl.style.color = 'rgba(124,58,237,0.65)'
+    } else {
+      el.style.background = 'rgba(26,10,46,0.03)'
+      el.style.borderColor = 'rgba(26,10,46,0.08)'
+      if (numEl) { numEl.textContent = String(i); numEl.style.color = 'rgba(26,10,46,0.3)' }
+      if (lblEl) lblEl.style.color = 'rgba(26,10,46,0.35)'
+      if (subEl) subEl.style.color = 'rgba(26,10,46,0.25)'
+    }
+  }
+}
+
+// ===== DEMO DATA =====
+const DEMO_BRIEF = {
+  brand: 'Canva', objective: 'Consideration', duration: '6 weeks',
+  budget: '350000', location: 'Sydney CBD + Melbourne CBD — OOH/DOOH transit, digital and social retargeting',
+  message: 'Your ideas deserve to look this good. Try Canva Pro free for 30 days.',
+  audience: 'Professionals, freelancers, small business owners and content creators 22–55, digitally active'
+}
+const DEMO_PERSONAS = [
+  { id:'dp1', lumos_id:'LUMOS-R7X2K9M4', name:'Zoe Mitchell', age:27, gender:'female', occupation:'UX Designer', suburb:'Surry Hills, NSW', commute:'Trains + walk', lifestyle_traits:['design-obsessed','coffee culture devotee','side hustle queen','sustainability-minded','indie music fan'], ad_skepticism:3, social_influence_score:8, primary_channel:'Social', social_combustion_pct:82, photo:'https://randomuser.me/api/portraits/women/44.jpg' },
+  { id:'dp2', lumos_id:'LUMOS-A3C8F6N1', name:'Brendan Walsh', age:42, gender:'male', occupation:'Electrician', suburb:'Penrith, NSW', commute:'Drive 45min each way', lifestyle_traits:['footy weekends','backyard BBQ host','practical and no-nonsense','loyal to brands he trusts','cash-first mindset'], ad_skepticism:7, social_influence_score:4, primary_channel:'TV/CTV', social_combustion_pct:31, photo:'https://randomuser.me/api/portraits/men/52.jpg' },
+  { id:'dp3', lumos_id:'LUMOS-B9T4E2W7', name:'Priya Sharma', age:31, gender:'female', occupation:'Marketing Manager', suburb:'South Yarra, VIC', commute:'Tram + walk', lifestyle_traits:['early adopter','gym 4x per week','strategically ambitious','foodie and restaurant scout','LinkedIn power user'], ad_skepticism:4, social_influence_score:7, primary_channel:'Social', social_combustion_pct:71, photo:'https://randomuser.me/api/portraits/women/65.jpg' },
+  { id:'dp4', lumos_id:'LUMOS-Q5L1H8D3', name:'Ryan O\'Brien', age:23, gender:'male', occupation:'Comedy Creator (TikTok)', suburb:'Fitzroy, VIC', commute:'Walk or bike', lifestyle_traits:['12K TikTok followers','full-time content creation','comedy-first everything','thrift shop aesthetic','very online at all hours'], ad_skepticism:2, social_influence_score:9, primary_channel:'Social', social_combustion_pct:91, photo:'https://randomuser.me/api/portraits/men/31.jpg' },
+  { id:'dp5', lumos_id:'LUMOS-G2K7P5N9', name:'Helen Papadopoulos', age:56, gender:'female', occupation:'Pharmacy Manager', suburb:'Parramatta, NSW', commute:'Drive 20min', lifestyle_traits:['community pillar','church group coordinator','family-first values','Facebook daily user','price-conscious buyer'], ad_skepticism:5, social_influence_score:5, primary_channel:'TV/CTV', social_combustion_pct:42, photo:'https://randomuser.me/api/portraits/women/72.jpg' },
+  { id:'dp6', lumos_id:'LUMOS-X8Z3V6T2', name:'James Nguyen', age:25, gender:'male', occupation:'Software Engineer', suburb:'Ultimo, NSW', commute:'Walk to office', lifestyle_traits:['Reddit power user','ad-blocker installed everywhere','gamer on weekends','open source contributor','deeply skeptical of marketing'], ad_skepticism:9, social_influence_score:4, primary_channel:'Digital', social_combustion_pct:29, photo:'https://randomuser.me/api/portraits/men/18.jpg' },
+  { id:'dp7', lumos_id:'LUMOS-C4M9R1F7', name:'Tracey Morrison', age:44, gender:'female', occupation:'Registered Nurse', suburb:'Wollongong, NSW', commute:'Drive 30min, listens to radio', lifestyle_traits:['shift worker mum of two','podcast and radio devotee','practical buyer','values time-saving products','shares finds with hospital colleagues'], ad_skepticism:4, social_influence_score:6, primary_channel:'Radio', social_combustion_pct:55, photo:'https://randomuser.me/api/portraits/women/58.jpg' },
+  { id:'dp8', lumos_id:'LUMOS-H6W2D8L4', name:'Marcus Rivers', age:39, gender:'male', occupation:'Small Business Owner', suburb:'Cremorne, NSW', commute:'Drive or ferry', lifestyle_traits:['café networker','currently paying Adobe subscription','design-aware but time-poor','gym 3x weekly','high ROI mindset'], ad_skepticism:4, social_influence_score:7, primary_channel:'OOH/DOOH', social_combustion_pct:68, photo:'https://randomuser.me/api/portraits/men/43.jpg' },
+  { id:'dp9', lumos_id:'LUMOS-J3S7N4K8', name:'Ella Thompson', age:21, gender:'female', occupation:'Beauty & Lifestyle Creator', suburb:'St Kilda, VIC', commute:'Tram', lifestyle_traits:['8K Instagram + TikTok following','always testing new apps','thumbnail and aesthetic obsessive','collab-hungry','highly trend-sensitive'], ad_skepticism:2, social_influence_score:8, primary_channel:'Social', social_combustion_pct:88, photo:'https://randomuser.me/api/portraits/women/27.jpg' },
+  { id:'dp10', lumos_id:'LUMOS-V5T1G9E6', name:'David Kim', age:63, gender:'male', occupation:'Retired Structural Engineer', suburb:'North Sydney, NSW', commute:'Walks to cafes', lifestyle_traits:['cricket and gardening','helps grandkids with tech','YouTube documentary watcher','sceptical of trends but curious','reads AFR and SMH'], ad_skepticism:6, social_influence_score:3, primary_channel:'TV/CTV', social_combustion_pct:22, photo:'https://randomuser.me/api/portraits/men/76.jpg' },
+]
+const DEMO_REACTIONS = [
+  { persona_id:'dp1', noticed:true, recall_strength:5, emotional_response:'excited', likely_action:'signs up for Pro trial', quote:'Oh I literally use Canva every day for client decks — this landed perfectly. The OOH on Oxford St was genuinely clever.', reasons_for_recall:['relevant to daily work','strong visual execution'] },
+  { persona_id:'dp2', noticed:true, recall_strength:3, emotional_response:'curious', likely_action:'mentions to wife', quote:'Saw it on telly, seemed useful. My missus does the flyers for her bootcamp so I might show her.', reasons_for_recall:['TV airtime was high','simple message'] },
+  { persona_id:'dp3', noticed:true, recall_strength:4, emotional_response:'interested', likely_action:'researches Pro tier pricing', quote:'Good timing actually — we\'re reviewing our design stack at work. The transit OOH hit me during my commute three mornings running.', reasons_for_recall:['professional relevance','frequency of outdoor'] },
+  { persona_id:'dp4', noticed:true, recall_strength:5, emotional_response:'excited', likely_action:'makes a TikTok about it', quote:'Okay the ad itself? Lowkey a vibe. I already use Canva for thumbnails but the Pro features got me — made a whole video reacting to it.', reasons_for_recall:['content creation relevance','aesthetic quality'] },
+  { persona_id:'dp5', noticed:true, recall_strength:3, emotional_response:'curious', likely_action:'asks colleague about it', quote:'I think I saw it on Facebook actually. Looks like it could help with our pharmacy\'s socials. I\'ll ask Sarah at work, she\'s good with computers.', reasons_for_recall:['Facebook placement','simple visual'] },
+  { persona_id:'dp6', noticed:false, recall_strength:2, emotional_response:'skeptical', likely_action:'does nothing — has uBlock', quote:'Honestly? I use the free version and it does everything I need. The ad just felt like a push to extract money from existing users. Classic SaaS move.', reasons_for_recall:[] },
+  { persona_id:'dp7', noticed:true, recall_strength:3, emotional_response:'interested', likely_action:'saves link to check later', quote:'Heard it on the radio driving to work actually. I use basic stuff for the school fundraiser posters so the free trial idea caught my ear.', reasons_for_recall:['radio during commute','free trial offer'] },
+  { persona_id:'dp8', noticed:true, recall_strength:4, emotional_response:'interested', likely_action:'calculates cost vs Adobe', quote:'The OOH caught me near the ferry wharf. I\'m paying $80 a month for Adobe and half the team uses Canva anyway. Finally makes the business case obvious.', reasons_for_recall:['outdoor placement near commute','pricing contrast resonated'] },
+  { persona_id:'dp9', noticed:true, recall_strength:4, emotional_response:'excited', likely_action:'stories about it + affiliate link', quote:'Obsessed. I upgraded literally the same day I saw the ad. Already made three posts about the Brand Kit feature — my audience loves that kind of thing.', reasons_for_recall:['highly relevant to creator workflow','strong aesthetic'] },
+  { persona_id:'dp10', noticed:true, recall_strength:2, emotional_response:'curious', likely_action:'asks daughter about it', quote:'I saw it on the television. Quite a clever little ad actually. I use Word for everything but my daughter keeps telling me to try Canva for my garden club newsletters.', reasons_for_recall:['TV placement','memorable tagline'] },
+]
+const DEMO_CASCADES = [
+  { agent:'Ryan O\'Brien', action:'Posted TikTok reaction video — "POV: this ad understood you" — 4,200 views, 380 saves, 61 comments', reach:8, timestamp:'Day 3' },
+  { agent:'Ella Thompson', action:'Instagram Stories feature: "Okay I finally upgraded and the Brand Kit is unreal 🤌" — 2,100 story views, 47 DMs asking about it', reach:7, timestamp:'Day 4' },
+  { agent:'Zoe Mitchell', action:'Slack message to 14-person design team: "Heads up — Canva Pro is doing a 30-day free, worth switching from Figma for client deliverables"', reach:5, timestamp:'Day 2' },
+  { agent:'Priya Sharma', action:'LinkedIn post: "Just switched our whole agency to Canva Pro — the collaboration features are genuinely impressive for the price"', reach:4, timestamp:'Day 5' },
+  { agent:'Marcus Rivers', action:'WhatsApp to 3 business owner peers: "Anyone switched from Adobe? Running the Canva trial, early signs are good"', reach:3, timestamp:'Day 6' },
+]
+const DEMO_STATS = { recall_pct: 68, intent_pct: 41, weekly_reach: 198000, roas: 2.9 }
+const DEMO_REPORT = `## Executive Summary
+
+The **Canva Pro "Your ideas deserve to look this good"** campaign demonstrated strong performance across the Sydney and Melbourne metro markets, with a predicted brand recall rate of **68%** among simulated audiences and a purchase intent lift of **41%** — well above the AU SaaS benchmark of 28%.
+
+## Key Findings
+
+### Super Connector Impact
+**Ryan O'Brien** (Fitzroy comedy creator, 12K TikTok) generated the highest cascade score at **91 combustion** — his organic reaction video reached an estimated 4,200 views within 72 hours of campaign launch. **Ella Thompson** (St Kilda beauty creator) drove 47 direct DMs from a single Instagram Story. These two personas alone account for **38% of projected WOM secondary reach**.
+
+### Channel Performance
+- **OOH/DOOH** delivered the highest brand recall for commuter professionals (Priya, Marcus) — multi-exposure during transit created strong mental availability
+- **Social retargeting** activated existing Canva free users and triggered upgrade behaviour — Zoe and Ella converted within 24 hours of second exposure  
+- **TV/CTV** reached older, less digitally-native segments (Helen, David) with strong awareness but slower conversion path
+- **Radio** underperformed on conversion but drove awareness for Tracey's segment — recommend shifting 5% radio budget to Search
+
+### Audience Priority Ranking
+1. **Professionals & freelancers** (Zoe, Priya, Marcus) — highest ROAS segment at 3.8×, immediate business case for upgrade
+2. **Content creators** (Ryan, Ella) — explosive WOM multiplier, 8–12× cascade amplification per person reached
+3. **Small business owners** (Marcus, Helen) — strong consideration, longer decision cycle, needs OOH + Search combination
+4. **Mainstream & family** (Tracey, Brendan) — brand awareness foundation, low conversion but builds universe
+
+## Media Strategy Recommendation
+
+Recommend a **6-week burst/sustain schedule**: heavy OOH + Social launch in weeks 1–2, sustain all channels weeks 3–5, then pivot to Search + Social retargeting in weeks 6 for conversion close. Allocate 35% to OOH/DOOH (proven highest recall), 25% to Search (intent capture), 20% to Social (creator amplification + retargeting).
+
+**Predicted blended ROAS: 2.9×** — with creator amplification upside potentially lifting this to 3.5× if influencer partnerships are activated.`
+
+function loadDemo() {
+  document.getElementById('f-brand').value     = DEMO_BRIEF.brand
+  document.getElementById('f-objective').value = DEMO_BRIEF.objective
+  document.getElementById('f-message').value   = DEMO_BRIEF.message
+  document.getElementById('f-audience').value  = DEMO_BRIEF.audience
+  document.getElementById('f-location').value  = DEMO_BRIEF.location
+  document.getElementById('f-duration').value  = DEMO_BRIEF.duration
+  document.getElementById('f-budget').value    = DEMO_BRIEF.budget
+  onInputChange()
+
+  // Pre-assign cascade scores
+  DEMO_PERSONAS.forEach(p => {
+    p.cascadeScore = cascadePower(p, DEMO_REACTIONS, [])
+  })
+  window._simPersonas   = DEMO_PERSONAS
+  window._simReactions  = DEMO_REACTIONS
+  window._simWOM        = DEMO_CASCADES.flatMap((c,i) => Array.from({length:c.reach},(_,j)=>({id:'wom_'+i+'_'+j})))
+  window._simStats      = DEMO_STATS
+  window._simCascades   = DEMO_CASCADES
+
+  // Add KPI nodes to map (skip simulation)
+  addKPINodes(DEMO_STATS)
+
+  // Render results
+  renderResults(DEMO_PERSONAS, DEMO_REACTIONS, DEMO_CASCADES, DEMO_STATS, DEMO_REPORT, DEMO_BRIEF)
+
+  // Activate personas on graph (simplified — just labels)
+  DEMO_PERSONAS.forEach(p => addPersonaNode(p))
+
+  setProcessStep(3)
+  switchTab('plan')
+
+  // Update loading stats display
+  _setStat('reach', formatNum(DEMO_STATS.weekly_reach))
+  _setStat('roas', DEMO_STATS.roas.toFixed(1) + 'x')
+  _setStat('agents', DEMO_PERSONAS.length)
+  _setStat('super', DEMO_PERSONAS.filter(p => isSuper(p)).length)
+  showResultTabs()
+}
 
 // ===== STATE =====
 let simulation = null, nodes = [], edges = [], svgG = null, svgDefs = null
@@ -1861,6 +2074,7 @@ function showSCDetail(p, d) {
         <div style="font-family:AT-Realm-Bold;font-size:16px;color:#1a0a2e">${p.name}</div>
         <div style="font-family:GT-Planar;font-size:12px;color:rgba(26,10,46,0.5);margin-top:2px">${p.age} · ${p.occupation}</div>
         <div style="font-family:GT-Planar;font-size:12px;color:rgba(26,10,46,0.4)">${p.suburb}</div>
+        ${p.lumos_id ? `<div style="font-family:monospace;font-size:9px;color:rgba(124,58,237,0.55);background:rgba(124,58,237,0.06);border:1px solid rgba(124,58,237,0.15);border-radius:4px;padding:2px 6px;display:inline-block;margin-top:4px">${p.lumos_id}</div>` : ''}
       </div>
     </div>
 
@@ -2148,6 +2362,7 @@ function renderAudienceTargets(ranking, reactions) {
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px">
           <span style="font-family:AT-Realm-Bold;font-size:13px;color:#1a0a2e">${p.name}</span>
           <span style="font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.5)">${p.age} · ${p.occupation} · ${p.suburb}</span>
+          ${p.lumos_id ? `<span style="font-family:monospace;font-size:8px;color:rgba(124,58,237,0.5);background:rgba(124,58,237,0.06);border:1px solid rgba(124,58,237,0.15);border-radius:4px;padding:1px 5px">${p.lumos_id}</span>` : ''}
         </div>
         <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">
           <span style="background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.2);border-radius:20px;padding:2px 7px;font-size:10px;font-family:AT-Realm-Regular;color:#7c3aed">⚡ ${p.cascadeScore} cascade</span>
@@ -2206,10 +2421,15 @@ function startInterview(personaId) {
   // Inject as a hidden system kick-off
   const brief = getFormValues()
   const firstName2 = p.name.split(' ')[0]
-  const sysKick = `You are roleplaying as ${p.name}, a ${p.age}-year-old ${p.occupation} from ${p.suburb}, being interviewed by a market researcher.
+  const kickVoice = getPersonaVoice(p)
+  const kickVibe = getSuburbVibe(p.suburb)
+  const sysKick = `You are roleplaying as ${p.name} in a market research interview.
+Who you are: ${p.age}-year-old ${p.occupation} from ${p.suburb} (${kickVibe}).
 Personality: ${(p.lifestyle_traits||[]).slice(0,4).join(', ')}.
-You recently saw the "${brief.brand}" campaign. Reaction: ${r.emotional_response||'curious'}. Recall: ${r.recall_strength||3}/5.
-Speak as ${firstName2}. Casual Australian English. NEVER output JSON. Real, warm, natural human voice.`
+Voice style: ${kickVoice.ageVoice}. ${kickVoice.occVoice}.
+You recently saw the "${brief.brand}" campaign. Emotional response: ${r.emotional_response||'curious'}. Recall: ${r.recall_strength||3}/5.
+${r.quote ? 'What you said about it: "' + r.quote.slice(0,100) + '"' : ''}
+Speak as ${p.name.split(' ')[0]}. Casual, real Australian English. NEVER output JSON. Stay in character.`
   callLLM([
     { role: 'system', content: sysKick },
     { role: 'user', content: openerPrompt }
@@ -2347,6 +2567,96 @@ function renderMediaPlan(personas, reactions, stats, brief, cascadeRanking) {
         </div>
       </div>
 
+      ${(function() {
+        // Derive week count from brief.duration
+        const durStr = (brief.duration||'4 weeks').toLowerCase()
+        const weeks = parseInt(durStr) || 4
+        const clampW = Math.min(Math.max(weeks, 2), 12)
+
+        // Channel schedule phases: [from_week, to_week, intensity 0-1]
+        const CH_SCHEDULE = {
+          'OOH/DOOH': { peaks: 'Mon–Fri 7–9 am & 5–7 pm\nSat 10 am–2 pm', freqCap: 'Always-on — no frequency cap', cadence: 'Sustained flight throughout', phases: [[1,Math.ceil(clampW*0.25),'launch'],[Math.ceil(clampW*0.25)+1,Math.ceil(clampW*0.65),'sustain'],[Math.ceil(clampW*0.65)+1,clampW,'sustain']] },
+          'Social':   { peaks: 'Thu–Sun 7–10 pm\nSat–Sun 11 am–3 pm', freqCap: '3–4× per user per week max', cadence: 'Burst launch, pulse for events/tentpole', phases: [[1,Math.ceil(clampW*0.25),'launch'],[Math.ceil(clampW*0.25)+1,Math.ceil(clampW*0.65),'sustain'],[Math.ceil(clampW*0.65)+1,Math.max(clampW-1,1),'amplify'],[clampW,clampW,'pause']] },
+          'Search':   { peaks: 'Mon–Fri 8 am–6 pm\nPeak: Tue–Thu', freqCap: 'Intent-driven — no cap, but monitor CPCs', cadence: 'Always-on with bid uplift in final weeks', phases: [[1,Math.ceil(clampW*0.4),'sustain'],[Math.ceil(clampW*0.4)+1,clampW,'amplify']] },
+          'TV/CTV':   { peaks: 'Mon–Sun 6–9 pm\nSat–Sun afternoons', freqCap: '2–3× per HH per week max', cadence: 'Front-loaded — heavy weeks 1–3, taper out', phases: [[1,Math.ceil(clampW*0.4),'launch'],[Math.ceil(clampW*0.4)+1,Math.ceil(clampW*0.65),'sustain'],[Math.ceil(clampW*0.65)+1,clampW,'pause']] },
+          'Digital':  { peaks: 'Mon–Sun 7 am–10 pm\nPeak: Thu–Fri', freqCap: '5–7× per user per week — watch fatigue', cadence: 'Burst launch + retargeting push in final 2 weeks', phases: [[1,Math.ceil(clampW*0.3),'launch'],[Math.ceil(clampW*0.3)+1,Math.ceil(clampW*0.65),'sustain'],[Math.ceil(clampW*0.65)+1,clampW,'amplify']] },
+          'Radio':    { peaks: 'Mon–Fri 6–9 am & 3–5 pm\n(commuter drive-time)', freqCap: '3–5 spots per station per day max', cadence: 'Awareness burst weeks 1–2, then cut', phases: [[1,Math.ceil(clampW*0.35),'launch'],[Math.ceil(clampW*0.35)+1,clampW,'pause']] },
+        }
+
+        const phaseColor = { launch:'#7c3aed', sustain:'#0ea5e9', amplify:'#16a34a', pause:'rgba(26,10,46,0.08)' }
+        const phaseLabel = { launch:'LAUNCH', sustain:'SUSTAIN', amplify:'AMPLIFY', pause:'—' }
+
+        const weekLabels = Array.from({length:clampW},(_,i)=>`W${i+1}`).join('')
+
+        // Build Gantt rows
+        const ganttRows = CH_NAMES.map(ch => {
+          const sched = CH_SCHEDULE[ch]
+          if (!sched) return ''
+          const chAlloc = alloc[ch]||0
+          if (chAlloc === 0) return ''
+          // Create week cells
+          const cells = Array.from({length:clampW},(_,wi)=>{
+            const w = wi+1
+            // Find which phase this week is in
+            let phase = 'pause'
+            for (const [from,to,p] of sched.phases) { if (w>=from && w<=to) { phase=p; break } }
+            const bg = phaseColor[phase]
+            const isFirst = sched.phases.find(([from,,p])=>from===w&&p!=='pause')
+            return `<td style="padding:0;border:1px solid rgba(26,10,46,0.06)"><div style="height:20px;background:${bg};${phase==='pause'?'':'opacity:0.9'}"></div></td>`
+          }).join('')
+          return `<tr>
+            <td style="padding:6px 8px;white-space:nowrap;font-family:GT-Planar;font-size:11px;color:#1a0a2e;border-right:2px solid rgba(124,58,237,0.15)">${CH[ch].icon} ${ch}</td>
+            ${cells}
+            <td style="padding:4px 6px;font-family:GT-Planar;font-size:10px;color:rgba(26,10,46,0.5);white-space:nowrap">${sched.cadence}</td>
+          </tr>`
+        }).filter(Boolean).join('')
+
+        const weekHeaderCells = Array.from({length:clampW},(_,i)=>`<th style="padding:4px 2px;font-family:AT-Realm-Regular;font-size:9px;color:rgba(26,10,46,0.4);text-align:center;min-width:28px;font-weight:normal">W${i+1}</th>`).join('')
+
+        // Peak windows table
+        const peakRows = CH_NAMES.filter(ch=>(alloc[ch]||0)>0).map(ch=>{
+          const s = CH_SCHEDULE[ch]
+          if (!s) return ''
+          return `<tr style="border-bottom:1px solid rgba(26,10,46,0.05)">
+            <td style="padding:8px 10px;font-family:GT-Planar;font-size:11px;color:#1a0a2e;white-space:nowrap">${CH[ch].icon} ${ch}</td>
+            <td style="padding:8px 10px;font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.65);white-space:pre-line;line-height:1.5">${s.peaks}</td>
+            <td style="padding:8px 10px;font-family:GT-Planar;font-size:11px;color:rgba(26,10,46,0.65)">${s.freqCap}</td>
+          </tr>`
+        }).filter(Boolean).join('')
+
+        return `
+      <h3 style="font-family:AT-Realm-Bold;font-size:14px;color:#1a0a2e;margin:0 0 12px">📅 Campaign Schedule</h3>
+      <div style="background:#fff;border:1px solid rgba(26,10,46,0.08);border-radius:12px;padding:18px;margin-bottom:24px;overflow-x:auto">
+        <div style="display:flex;gap:12px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+          <div style="font-family:AT-Realm-Regular;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(26,10,46,0.4);margin-right:4px">Flight phases</div>
+          ${Object.entries(phaseColor).filter(([k])=>k!=='pause').map(([k,c])=>`<div style="display:flex;align-items:center;gap:5px"><div style="width:20px;height:8px;border-radius:2px;background:${c}"></div><span style="font-family:GT-Planar;font-size:10px;color:rgba(26,10,46,0.6)">${phaseLabel[k]}</span></div>`).join('')}
+          <div style="display:flex;align-items:center;gap:5px"><div style="width:20px;height:8px;border-radius:2px;background:rgba(26,10,46,0.08)"></div><span style="font-family:GT-Planar;font-size:10px;color:rgba(26,10,46,0.6)">PAUSED</span></div>
+        </div>
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr>
+            <th style="padding:4px 8px;text-align:left;font-family:AT-Realm-Regular;font-size:9px;color:rgba(26,10,46,0.4);font-weight:normal;border-right:2px solid rgba(124,58,237,0.15)">Channel</th>
+            ${weekHeaderCells}
+            <th style="padding:4px 8px;text-align:left;font-family:AT-Realm-Regular;font-size:9px;color:rgba(26,10,46,0.4);font-weight:normal">Cadence</th>
+          </tr></thead>
+          <tbody>${ganttRows}</tbody>
+        </table>
+      </div>
+
+      <h3 style="font-family:AT-Realm-Bold;font-size:14px;color:#1a0a2e;margin:0 0 12px">⏰ Peak Delivery Windows & Frequency</h3>
+      <div style="background:#fff;border:1px solid rgba(26,10,46,0.08);border-radius:12px;overflow:hidden;margin-bottom:24px">
+        <table style="width:100%;border-collapse:collapse">
+          <thead style="background:rgba(124,58,237,0.04)">
+            <tr>
+              <th style="padding:10px 10px;text-align:left;font-family:AT-Realm-Regular;font-size:9px;color:rgba(26,10,46,0.4);text-transform:uppercase;letter-spacing:0.08em;font-weight:normal;border-bottom:1px solid rgba(26,10,46,0.07)">Channel</th>
+              <th style="padding:10px 10px;text-align:left;font-family:AT-Realm-Regular;font-size:9px;color:rgba(26,10,46,0.4);text-transform:uppercase;letter-spacing:0.08em;font-weight:normal;border-bottom:1px solid rgba(26,10,46,0.07)">Peak Window</th>
+              <th style="padding:10px 10px;text-align:left;font-family:AT-Realm-Regular;font-size:9px;color:rgba(26,10,46,0.4);text-transform:uppercase;letter-spacing:0.08em;font-weight:normal;border-bottom:1px solid rgba(26,10,46,0.07)">Frequency Cap</th>
+            </tr>
+          </thead>
+          <tbody>${peakRows}</tbody>
+        </table>
+      </div>`
+      })()}
+
       <div style="background:rgba(124,58,237,0.04);border:1px solid rgba(124,58,237,0.12);border-radius:12px;padding:18px">
         <div style="font-family:AT-Realm-Bold;font-size:12px;color:#7c3aed;margin-bottom:10px">🔬 How This Strategy Was Generated</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
@@ -2415,6 +2725,7 @@ function renderResults(personas, reactions, cascades, stats, report, brief) {
         <span class="persona-suburb">${p.suburb}</span>
       </div>
       <div class="persona-meta">${p.age} · ${p.occupation}</div>
+      ${p.lumos_id ? `<div style="font-family:monospace;font-size:8px;color:rgba(124,58,237,0.45);letter-spacing:0.04em;margin-bottom:4px">${p.lumos_id}</div>` : ''}
       <div class="recall-bar"><div class="recall-fill" style="width:${recallPct}%"></div></div>
       <div class="persona-badges">
         <span class="badge ${noticed ? 'noticed' : 'not-noticed'}">${noticed ? '✓ Noticed' : '○ Missed'}</span>
@@ -2686,6 +2997,7 @@ IDs p${b*10+1} to p${b*10+10}. Vary ages 18-70, suburbs across AU cities.` }
       const g = p.gender === 'male' ? 'men' : 'women'
       const n = ((b*10 + j) % 70) + 1
       p.photo = `https://randomuser.me/api/portraits/${g}/${n}.jpg`
+      p.lumos_id = generateLumosId()
     })
     for (const p of batch) {
       all.push(p)
@@ -3115,6 +3427,7 @@ async function runSimulation() {
   if (!key) { openApiModal(); return }
 
   document.getElementById('run-btn').disabled = true
+  setProcessStep(2)
   clearResults()
   showLoadingPanel()
   _setProgress(5, 'Brief Ingested', 'Campaign brief validated and queued')
@@ -3247,6 +3560,7 @@ Sections (keep each brief — 2-3 sentences max per section): Executive Summary,
     _setStat('roas', (window._simStats?.roas || 0).toFixed(1) + 'x')
     await new Promise(r => setTimeout(r, 600))
     hideLoadingPanel()
+    setProcessStep(3)
     showResultTabs()
     document.getElementById('run-btn').disabled = false
     simDone = true
@@ -3286,29 +3600,42 @@ Campaign context: ${brief.brand} · ${brief.objective||'Brand Awareness'} · AUD
       const firstName = p.name.split(' ')[0]
       const recallDesc = (r.recall_strength||3) >= 4 ? 'remembered it pretty clearly' : (r.recall_strength||3) >= 3 ? 'vaguely remembered it' : 'barely remembered it'
       const moodAdverb = r.emotional_response === 'excited' ? 'genuinely excited' : r.emotional_response === 'curious' ? 'a bit curious' : r.emotional_response === 'skeptical' ? 'a bit skeptical honestly' : r.emotional_response === 'indifferent' ? 'pretty indifferent' : r.emotional_response||'somewhat interested'
-      sysContent = `You are roleplaying as ${p.name}, a ${p.age}-year-old ${p.occupation} from ${p.suburb}, being interviewed by a market researcher about a recent ad campaign.
+      const voice = getPersonaVoice(p)
+      const suburbVibe = getSuburbVibe(p.suburb)
+      const skepNote = p.ad_skepticism >= 7 ? `You are quite ad-skeptical (${p.ad_skepticism}/10) — you distrust marketing claims by default and say so. Don't be rude, but be honest.` : p.ad_skepticism >= 5 ? `You're somewhat skeptical of advertising (${p.ad_skepticism}/10) — you'll give it a fair hearing but you're not easily sold.` : `You're relatively open to advertising (skepticism ${p.ad_skepticism}/10) — if something is genuinely relevant to you, you'll engage with it.`
+      const recallContext = r.quote ? `One thing you said about it at the time: "${r.quote.slice(0,120)}"` : ''
+      const actionNote = r.likely_action ? `What you've done or are likely to do: ${r.likely_action}.` : ''
+      const reasonsNote = r.reasons_for_recall?.length ? `What stood out to you: ${r.reasons_for_recall.slice(0,2).join('; ')}.` : ''
+      sysContent = `You are roleplaying as ${p.name} in a qualitative consumer research interview. This is a market research session about a recent advertising campaign.
 
-WHO YOU ARE:
-- Your name is ${firstName}. ${p.age} years old. ${p.occupation}. Lives in ${p.suburb}.
-- Personality: ${(p.lifestyle_traits||[]).slice(0,4).join(', ')}.
-- Primary social media: ${p.primary_channel||'Instagram'}.
+═══ WHO YOU ARE ═══
+Name: ${p.name} (go by ${firstName}).
+Age: ${p.age}. Occupation: ${p.occupation}.
+Where you live: ${p.suburb} — ${suburbVibe}.
+Your world: ${(p.lifestyle_traits||[]).join(', ')}.
+Primary media: ${p.primary_channel||'Social'}.
 
-YOUR EXPERIENCE WITH THE "${brief.brand}" CAMPAIGN:
-- You ${recallDesc} when you saw it.
-- Your honest reaction: you felt ${moodAdverb} about it.
-- Recall strength: ${r.recall_strength||3}/5.
-${r.reasons_for_recall?.length ? '- What stood out: ' + r.reasons_for_recall.slice(0,2).join('; ') + '.' : ''}
-${r.emotional_response === 'skeptical' || r.recall_strength <= 2 ? '- You have some doubts or weren\'t that moved by it — be honest about that.' : ''}
+═══ YOUR VOICE (CRITICAL — nail this) ═══
+Age/generation style: ${voice.ageVoice}.
+Occupational communication style: ${voice.occVoice}.
+Ad skepticism: ${skepNote}
 
-HOW TO RESPOND — this is critical:
-- You are being interviewed. Respond like a real person in a focus group or casual interview.
-- Speak as ${firstName} — first person, warm, natural Australian English.
-- Use natural speech patterns: "yeah", "look", "I mean", "honestly", "not gonna lie", "sort of", trailing thoughts, light self-correction.
-- Keep answers focused but human — 2 to 5 sentences. Don't over-explain.
-- Have genuine opinions. If something impressed you, say why. If you're skeptical, say that too.
-- Reference your real life where relevant — your job, your suburb, your routine — when it connects naturally.
-- NEVER output JSON, bullet lists, headers, or any structured format. Pure conversational prose only.
-- NEVER say you're an AI or a simulated persona. You are ${firstName}.`
+═══ YOUR EXPERIENCE WITH "${brief.brand}" ═══
+- You ${recallDesc} when you encountered it. Recall strength: ${r.recall_strength||3}/5.
+- Your honest emotional response: ${moodAdverb}.
+${recallContext}
+${reasonsNote}
+${actionNote}
+
+═══ HOW TO SPEAK IN THIS INTERVIEW ═══
+- You are a real person in a qual research session. Respond naturally, like you're in a focus group or a one-on-one debrief.
+- Speak as ${firstName} — first person, grounded, Australian. Your suburb, job, daily life can come up naturally if it connects.
+- Keep answers human: 2–5 sentences. Trailing thoughts, mild self-correction, natural hedges are fine.
+- DO NOT give perfect marketing feedback. Real consumers are approximate, partial, sometimes contradictory.
+- If you're skeptical or unimpressed, say that — don't be polite for politeness's sake.
+- If the interviewer asks about your life or routine, stay in character and answer as ${firstName} would.
+- NEVER output JSON, lists, headers, or structured data. Pure conversational prose only.
+- NEVER break character. You are ${firstName}. Never say you're an AI or a simulation.`
     } else {
       sysContent = `You are a helpful media strategy assistant. Respond conversationally. Never output JSON.`
     }
